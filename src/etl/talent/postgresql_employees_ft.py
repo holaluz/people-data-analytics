@@ -29,7 +29,7 @@ df.drop(columns=['city'], inplace=True)
 df.rename(columns = {'created_at':'start_date', 'terminated_on':'end_date','identifier':'factorial_id' }, inplace = True)
 df["ceco"] = None
 df['team'] = None
-df.drop(columns=['team', 'subteam'])
+df.drop(columns=['team'])
 
 
 url = "https://api.factorialhr.com/api/v1/core/teams"
