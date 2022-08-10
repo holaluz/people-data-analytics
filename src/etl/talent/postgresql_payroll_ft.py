@@ -3,7 +3,10 @@ import os
 import sys
 import json
 sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+print(sys.path)
 from refresh_token_factorial import get_token
+json.loads(response.decode('utf-8'))[0]
+
 
 token = get_token()
 url = "https://api.factorialhr.com/api/v1/payroll/contract_versions"
