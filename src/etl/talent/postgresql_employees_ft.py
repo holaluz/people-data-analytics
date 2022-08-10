@@ -19,7 +19,7 @@ url = "https://api.factorialhr.com/api/v2/core/employees"
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
 
-response = requests.request("GET", url, headers=headers, data=payload)
+response = requests.request("GET", url, headers=headers)
 response_text = response.json()
 
 df = pd.DataFrame(response.json())
