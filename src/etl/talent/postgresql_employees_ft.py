@@ -25,7 +25,6 @@ response_text = response.json()
 df = pd.DataFrame(response.json())
 df.drop(columns=['termination_reason', 'state','full_name', 'termination_observations','nationality','bank_number', 'postal_code','swift_bic','timeoff_manager_id',
 'social_security_number', 'timeoff_policy_id','phone_number','address_line_1', 'address_line_2','updated_at','identifier_type'], inplace=True)
-df.drop(columns=['identifier_type','address_line_1', 'address_line_2'], inplace=True)
 df.drop(columns=['nationality','city'], inplace=True)
 df.rename(columns = {'created_at':'start_date', 'terminated_on':'end_date','identifier':'factorial_id' }, inplace = True)
 df["ceco"] = None
