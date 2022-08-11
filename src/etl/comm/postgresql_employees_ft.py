@@ -2,7 +2,6 @@ from msilib import schema
 import requests
 import os 
 import sys
-import json
 import pandas as pd
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
