@@ -43,8 +43,6 @@ df1 = df1.explode('employee_ids')
 df2 = pd.merge(df, df1, how='left', left_on='id', right_on='employee_ids')
 
 df1['employee_ids'] = df1['employee_ids'].astype('int64')
-df2['id']
-
 df2.drop(columns=['id_y','employee_ids', 'lead_ids'], inplace=True)
 df2. rename(columns = {'id_x':'id','name': 'team_name'}, inplace = True)
 
