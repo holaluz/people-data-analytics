@@ -1,16 +1,14 @@
 import redshift_connector
 import pandas as pd
+import os
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
 
 SCHEMA = "people"
 TABLE_NAME = "TAL_JOBS_FT"
-
-conn = redshift_connector.connect(
-     host='production-customer-redshift-1y8x.csyrzb3icveb.us-east-1.redshift.amazonaws.com',
-     database='w_5fe3463da',
-     user='user',
-     password='password')
+creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
+credentials = load_credentials(credentials_fp = creds_fp)
+conn = redshift_connector.connect(**credentials['redshift'])
 
 with conn:
     with conn.cursor() as cursor:
@@ -20,7 +18,6 @@ with conn:
 df = pd.DataFrame(result, columns = ['id','job_created_at','title', 'department','code',
 'state','city','experience','salary_from','salary_to',
 'first_published_at','last_published_at'])
-print(df.head())
 
 mysql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 mysql_client.write_table(
