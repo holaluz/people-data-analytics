@@ -29,7 +29,7 @@ df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract',
 'fr_mutual_id', 'fr_professional_category_id', 'fr_work_type_id',
 'de_contract_type_id'], inplace=True)
 
-credentials = load_credentials('C:\Users\Administrator\creds\creds.yml')
+credentials = load_credentials('C:\Users\Administrator\creds\creds_people.yml')
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df, 
