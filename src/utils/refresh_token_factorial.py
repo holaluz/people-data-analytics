@@ -4,7 +4,7 @@ import http.client
 import json
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
-credentials = load_credentials()
+credentials = load_credentials('C:/Users/Administrator/creds/creds_people.yml')
 
 def refresh_api(refresh_token):
     conn = http.client.HTTPSConnection("api.factorialhr.com")
