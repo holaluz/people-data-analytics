@@ -29,7 +29,8 @@ df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract',
 'fr_mutual_id', 'fr_professional_category_id', 'fr_work_type_id',
 'de_contract_type_id'], inplace=True)
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+credentials = load_credentials()
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df, 
     "OPS_PAYROLL_FT", 
