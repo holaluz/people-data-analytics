@@ -5,7 +5,7 @@ import sys
 import pandas as pd
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
+#sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
 from refresh_token_factorial import get_token
 
