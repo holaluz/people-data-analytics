@@ -13,7 +13,7 @@ SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
 
 token = get_token()
-url = "https://api.factorialhr.com/api/v2/core/employees"
+url = "https:\\api.factorialhr.com\api\v2\core\employees"
 
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
@@ -30,13 +30,10 @@ df.drop(columns=['team'])
 
 #Cross ids from employees & teams endpoint from api factorial to bring team_names to employee table
 
-url = "https://api.factorialhr.com/api/v1/core/teams"
+url = "https:\\api.factorialhr.com\api\v1\core\teams"
 
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
-
-response = requests.request("GET", url, headers=headers)
-response_text = response.json()
 
 df1 = pd.DataFrame(response.json())
 df1 = df1.explode('employee_ids')
@@ -65,8 +62,8 @@ postgresql_client.close_connection()
 
 df3 = pd.merge(df2, df_masterfile, how='left', left_on='id', right_on='id req > dni/nie') """
 
-
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+credentials = load_credentials('C:/Users/Administrator/creds/creds_people.yml')
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df2, 
     "PPL_EMPLOYEES_FT", 
