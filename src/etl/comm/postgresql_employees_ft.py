@@ -26,10 +26,12 @@ df.rename(columns = {'created_at':'start_date', 'terminated_on':'end_date','iden
 df["ceco"] = None
 df['team'] = None
 df['status'] = None
+df['chapter_name'] = None
 df.drop(columns=['team'])
 
 #Cross ids from employees & teams endpoint from api factorial to bring team_names to employee table
 
+token = get_token()
 url = "https:\\api.factorialhr.com\api\v1\core\teams"
 
 headers = {'Authorization': f'Bearer {token}'}
