@@ -13,7 +13,7 @@ SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
 
 token = get_token()
-url = "https:\\api.factorialhr.com\api\v2\core\employees"
+url = "https://api.factorialhr.com/api/v1/employees"
 
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
