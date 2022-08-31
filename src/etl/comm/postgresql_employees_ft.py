@@ -67,7 +67,7 @@ postgresql_client.close_connection()
 
 df3 = pd.merge(df2, df_masterfile, how='left', left_on='id', right_on='id req > dni/nie') """
 
-credentials = load_credentials('C:/Users/Administrator/creds/creds_people.yml')
+credentials = load_credentials(credentials_fp= 'C:/Users/Administrator/creds/creds_people.yml')
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df2, 
