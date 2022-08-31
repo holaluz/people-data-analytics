@@ -1,30 +1,40 @@
-import redshift_connector
+from msilib import schema
+import requests
+import os 
+import sys
+import json
 import pandas as pd
-import os
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
+#sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+print(sys.path)
+from refresh_token_factorial import get_token
 
 SCHEMA = "people"
-TABLE_NAME = "TAL_CANDIDATES_FT"
-
+TABLE_NAME = "OPS_PAYROLL_FT"
 creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
 credentials = load_credentials(credentials_fp = creds_fp)
-conn = redshift_connector.connect(**credentials['redshift'])
 
-with conn:
-    with conn.cursor() as cursor:
-        cursor.execute("select id, candidate_created_at, job_title, job_department, job_first_published_at, application_method, current_stage_id, first_screened_at, first_contacted_at, first_interviewed_at, first_offer_at, first_hired_at, disqualified, disqualified_at, recruiter_id, firstname, lastname, email from candidates")
-        result = (cursor.fetchall())
+token = get_token()
+url = "https://api.factorialhr.com/api/v1/payroll/contract_versions"
 
-df = pd.DataFrame(result, columns= ['id','candidate_created_at','job_title','job_department', 
-'job_first_published_at','application_method' ,'current_stage_id', 'first_screened_at'
-, 'first_contacted_at', 'first_interviewed_at','first_offer_at', 'first_hired_at','disqualified',
-'disqualified_at', 'recruiter_id','firstname','lastname', 'email'])
+headers = {'Authorization': f'Bearer {token}'}
+response = requests.request("GET", url, headers=headers)
 
-mysql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-mysql_client.write_table(
+df = pd.DataFrame(response.json())
+df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract', 'es_cotization_group',
+'es_contract_observations','es_job_description','es_working_day_type_id',
+'es_education_level_id', 'es_professional_category_id',
+'fr_employee_type', 'fr_forfait_jours', 'fr_jours_par_an',
+'fr_coefficient', 'fr_contract_type_id', 'fr_level_id', 'fr_step_id',
+'fr_mutual_id', 'fr_professional_category_id', 'fr_work_type_id',
+'de_contract_type_id'], inplace=True)
+
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+postgresql_client.write_table(
     df, 
-    "TAL_CANDIDATES_FT", 
+    "OPS_PAYROLL_FT", 
     "people", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
 )

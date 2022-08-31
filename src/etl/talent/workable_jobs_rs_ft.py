@@ -19,7 +19,7 @@ df = pd.DataFrame(result, columns = ['id','job_created_at','title', 'department'
 'state','city','experience','salary_from','salary_to',
 'first_published_at','last_published_at'])
 
-mysql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+mysql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 mysql_client.write_table(
     df, 
     "TAL_JOBS_FT", 
