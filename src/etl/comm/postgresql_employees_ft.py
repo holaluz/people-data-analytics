@@ -7,16 +7,17 @@ from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
 #sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+print(sys.path)
 from refresh_token_factorial import get_token
 
-creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
-credentials = load_credentials(credentials_fp = creds_fp)
+#creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
+#credentials = load_credentials(credentials_fp = creds_fp)
 
 SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
 
 token = get_token()
-url = "https://api.factorialhr.com/api/v1/employees"
+url = "https:\\api.factorialhr.com\api\v1\employees"
 
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
@@ -67,7 +68,7 @@ postgresql_client.close_connection()
 
 df3 = pd.merge(df2, df_masterfile, how='left', left_on='id', right_on='id req > dni/nie') """
 
-credentials = load_credentials(credentials_fp= 'C:/Users/Administrator/creds/creds_people.yml')
+credentials = load_credentials('C:/Users/Administrator/creds/creds_people.yml')
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df2, 
