@@ -10,8 +10,8 @@ from holaluz_datatools.credentials import load_credentials
 print(sys.path)
 from refresh_token_factorial import get_token
 
-#creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
-#credentials = load_credentials(credentials_fp = creds_fp)
+creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
+credentials = load_credentials(credentials_fp = creds_fp)
 
 SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
