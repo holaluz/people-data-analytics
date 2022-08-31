@@ -10,6 +10,8 @@ from holaluz_datatools.credentials import load_credentials
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 
+
+
 def refresh_api(refresh_token):
     conn = http.client.HTTPSConnection("api.factorialhr.com")
     payload = 'client_id=b7wlIaFemFfQ7-xogFQMKEbf4ndzk7M9oT86NKSgSaE&client_secret=o1DPbdx9czt4u99EOcZW9yy5v_3DhR6Giut2bQPYieI&refresh_token='+refresh_token+'&grant_type=refresh_token'

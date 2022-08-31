@@ -11,15 +11,12 @@ import yaml
 import os 
 import sys
 import pandas as pd
-print('Hola')
 from holaluz_datatools.sql import PostgreSQLClient
 #from holaluz_datatools.credentials import load_credentials
-print('Hola')
+
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
-print('Hola')
 from refresh_token_factorial import get_token
-print('Hola')
 
 SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
