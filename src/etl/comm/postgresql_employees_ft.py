@@ -5,9 +5,12 @@ import sys
 import pandas as pd
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
+#sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
 from refresh_token_factorial import get_token
+
+creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
+credentials = load_credentials(credentials_fp = creds_fp)
 
 SCHEMA = "people"
 TABLE_NAME = "PPL_EMPLOYEES_FT"
