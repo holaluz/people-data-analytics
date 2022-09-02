@@ -6,8 +6,8 @@ import json
 import pandas as pd
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
-#sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+#sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
+sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
 print(sys.path)
 from refresh_token_factorial import get_token
 
@@ -20,8 +20,7 @@ url = "https://api.factorialhr.com/api/v1/payroll/contract_versions"
 headers = {'Authorization': f'Bearer {token}'}
 response = requests.request("GET", url, headers=headers)
 
-df2= pd.read_json(response.json())
-df = pd.DataFrame(response.json(), dtype= {"working_hours": object})
+df = pd.DataFrame(response.json())
 df['fte']= df['working_hours']/4000
 print(df['fte'])
 df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract', 'es_cotization_group',
