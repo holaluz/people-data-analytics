@@ -30,8 +30,8 @@ response = requests.request("GET", url, headers=headers)
 df = pd.DataFrame(response.json())
 columns = list(df.columns)
 columns_to_delete_ls = []
-columns_to_delete = ['termination_reason', 'state','full_name', 'termination_observations','nationality','bank_number', 'postal_code','swift_bic','timeoff_manager_id',
-'social_security_number', 'timeoff_policy_id','phone_number','address_line_1', 'address_line_2','updated_at','identifier_type']
+columns_to_delete = ['termination_reason', 'state','termination_observations','nationality','bank_number', 'postal_code','swift_bic','timeoff_manager_id',
+'social_security_number', 'timeoff_policy_id','phone_number','address_line_1', 'address_line_2','updated_at','identifier_type','teams_id']
 for col in columns:
     if col in columns_to_delete:
         columns_to_delete_ls.append(col)
@@ -42,6 +42,8 @@ df["ceco"] = None
 df['team'] = None
 df['status'] = None
 df['chapter_name'] = None
+
+df.columns
 
 #Cross ids from employees & teams endpoint from api factorial to bring team_names to employee table
 
@@ -80,11 +82,12 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
+postgresql_client.make_query('truncate table PPL_EMPLOYEES_FT')
 postgresql_client.write_table(
     df2, 
     "PPL_EMPLOYEES_FT", 
     "people", 
-    if_exists = 'replace' # see the different values that if_exists can take in the method docsting
+    if_exists = 'append' # see the different values that if_exists can take in the method docsting
 )
 
 
