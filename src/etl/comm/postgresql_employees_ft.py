@@ -81,7 +81,7 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
-postgresql_client.make_query('truncate table people.PPL_EMPLOYEES_FT')
+postgresql_client.make_query('truncate table people.people.PPL_EMPLOYEES_FT')
 postgresql_client.write_table(
     df2, 
     "PPL_EMPLOYEES_FT", 
