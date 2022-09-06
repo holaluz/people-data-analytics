@@ -69,7 +69,7 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
-postgresql_client.make_query('truncate table people.people.PPL_EMPLOYEES_FT')
+postgresql_client.make_query(r'truncate table people.people."PPL_EMPLOYEES_FT"') #r sirve para decir que todo lo que hay en el texto es texto
 postgresql_client.write_table(
     df2, 
     "PPL_EMPLOYEES_FT", 
