@@ -7,7 +7,7 @@ Output: snowflake
 from datetime import date
 import logging
 import pandas as pd
-
+import yaml
 from holaluz_datatools import SQLServerClient, SnowflakeSQLClient, PostgreSQLClient
 from holaluz_datatools.utils import load_query, set_logger_config
 from holaluz_datatools.credentials import load_credentials
@@ -20,7 +20,9 @@ S3_PATH = 'historic/people/export'
 S3_FILENAME = 'ppl_people_solar_holidays'
 
 logger = logging.getLogger(__name__)
-credentials = load_credentials()
+#credentials = load_credentials()
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
 
 def main():
 
