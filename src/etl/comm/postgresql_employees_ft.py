@@ -59,7 +59,7 @@ df1 = df1.explode('employee_ids')
 df2 = pd.merge(df, df1, how='left', left_on='id', right_on='employee_ids')
 
 df1['employee_ids'] = df1['employee_ids'].astype('int64')
-df2.drop(columns=['id_y','employee_ids', 'lead_ids','avatar','company_holiday_ids','location_id','manager_id','hiring',], inplace=True)
+df2.drop(columns=['id_y','employee_ids', 'lead_ids','avatar','regular_access_starts_on','company_holiday_ids','location_id','manager_id','hiring',], inplace=True)
 df2. rename(columns = {'id_x':'id','name': 'team_name'}, inplace = True)
 
 #Load new df into table ppl_employees
@@ -69,7 +69,12 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
-postgresql_client.make_query(r'truncate table people.people."PPL_EMPLOYEES_FT"') #r sirve para decir que todo lo que hay en el texto es texto
+import psycopg2
+m_dbCon = psycopg2.connect(**credentials['people_write'])
+curr = m_dbCon.cursor()
+curr.execute('truncate table PPL_EMPLOYEES_FT')
+curr.close()
+m_dbCon.commit()
 postgresql_client.write_table(
     df2, 
     "PPL_EMPLOYEES_FT", 
