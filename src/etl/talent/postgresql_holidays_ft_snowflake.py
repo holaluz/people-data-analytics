@@ -8,6 +8,7 @@ from datetime import date
 import logging
 import pandas as pd
 import yaml
+import os
 from holaluz_datatools import SQLServerClient, SnowflakeSQLClient, PostgreSQLClient
 from holaluz_datatools.utils import load_query, set_logger_config
 from holaluz_datatools.credentials import load_credentials
