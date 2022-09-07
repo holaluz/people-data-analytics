@@ -38,36 +38,3 @@ postgre_client.write_table(
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
 )
 
-
-
-"""#4. Query 2 get every new row into df_master
-
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-df = []
-query_master = 'select * from people."temp"."OPS_MASTER_FT" omf'
-
-for chunk in postgresql_client.make_query(query_master, chunksize=160000):
-    df.append(chunk)
-df_master = pd.concat(df, ignore_index=True)
-postgresql_client.close_connection()
-
-print(df_master)
-
-#Fills staff solar_22 with new information from masterfile table 
-
-spreadsheet = gspread_client.open('staff solar_22')
-ws = spreadsheet.worksheet('Current STAFF') 
-rows = ws.get_all_records() 
-df_worksheet = pd.DataFrame.from_dict(rows)
-df_total = pd.concat([df_master, df_worksheet])
-
-#Save it into staff_solar table
-
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-postgresql_client.write_table(
-    df_total, 
-    "OPS_STAFF_SOLAR_FT", 
-    "people", 
-    if_exists = 'replace' # see the different values that if_exists can take in the method docsting
-)"""
-
