@@ -70,7 +70,9 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
 import psycopg2
-m_dbCon = psycopg2.connect(**credentials['people_write'])
+credentials_postgre = credentials['people_write']
+m_dbCon = psycopg2.connect(user=credentials_postgre['user'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+,database=credentials_postgre['database'])
 curr = m_dbCon.cursor()
 curr.execute('truncate table PPL_EMPLOYEES_FT')
 curr.close()
