@@ -17,20 +17,31 @@ sheet_credentials = load_google_drive_service_account_credentials(
 
 gspread_client = gspread.authorize(sheet_credentials)
 
-sh = gspread_client.open('staff solar_22')
+sh = gspread_client.open('staff solar_2022')
 ws = sh.worksheet("Current STAFF")
-rows = ws.get_all_records() 
-df_worksheet = pd.DataFrame.from_dict(rows)
-df_test = df_worksheet['Apellidos, Nombre'].str.split(',', expand=True)
-df_test.rename(columns = {0: 'last_name', 1:'first_name'}, inplace=True)
-last_name_ls = df_test.pop('last_name')
-df_worksheet.insert(2,'last_name', last_name_ls)
-first_name_ls = df_test.pop('first_name')
-df_worksheet.insert(3,'first_name', first_name_ls)
+list_cols = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
+list_cols = ws.get_all_records() 
+df = pd.DataFrame()
+for col in list_cols:
+    value = ws.col_values(col)
+    df_master = pd.DataFrame.from_dict(value)
+    df = pd.concat([df, df_master], axis=1)
+
+df.columns = df.iloc[0]
+df = df[1:]
+df.columns
+print(df)
+
+#df_test = df_worksheet['Apellidos, Nombre'].str.split(',', expand=True)
+#df_test.rename(columns = {0: 'last_name', 1:'first_name'}, inplace=True)
+#last_name_ls = df_test.pop('last_name')
+#df_worksheet.insert(2,'last_name', last_name_ls)
+#first_name_ls = df_test.pop('first_name')
+#df_worksheet.insert(3,'first_name', first_name_ls)
 
 postgre_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 postgre_client.write_table(
-    df_worksheet, 
+    df, 
     "TAL_STAFF_SOLAR_FT", 
     "temp", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
