@@ -19,13 +19,12 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 sh = gspread_client.open('staff solar_22')
 ws = sh.worksheet("Current STAFF")
-list_cols = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
-list_cols = ws.get_values() 
-df = pd.DataFrame()
-for col in list_cols:
-    value = ws.col_values(col)
-    df_master = pd.DataFrame.from_dict(value)
-    df = pd.concat([df, df_master], axis=1)
+rows = ws.get_values() 
+df_ws = pd.DataFrame.from_dict(rows)
+df = df_ws.iloc[:,0:17]
+df.columns= df.iloc[0,:] #remove numerical headers
+df = df.iloc[1:,:]
+print(df)
 
 df.columns = df.iloc[0]
 df = df[1:]
