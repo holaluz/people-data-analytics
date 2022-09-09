@@ -38,8 +38,9 @@ print(df)
 #first_name_ls = df_test.pop('first_name')
 #df_worksheet.insert(3,'first_name', first_name_ls)
 
-postgre_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-postgre_client.write_table(
+credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+postgresql_client.write_table(
     df, 
     "TAL_STAFF_SOLAR_FT", 
     "temp", 
