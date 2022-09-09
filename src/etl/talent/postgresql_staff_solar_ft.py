@@ -1,6 +1,7 @@
 import os 
 import gspread
 import pandas as pd
+import yaml
 from genericpath import exists
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
@@ -20,16 +21,17 @@ gspread_client = gspread.authorize(sheet_credentials)
 sh = gspread_client.open('staff solar_22')
 ws = sh.worksheet("Current STAFF")
 rows = ws.get_values() 
+rows = ws.get_values() 
 df_ws = pd.DataFrame.from_dict(rows)
-df = df_ws.iloc[:,0:17]
+df = df_ws.iloc[:,0:85]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
 print(df)
 
-df.columns = df.iloc[0]
-df = df[1:]
-df.columns
-print(df)
+#df.columns = df.iloc[0]
+#df = df[1:]
+#df.columns
+#print(df)
 
 #df_test = df_worksheet['Apellidos, Nombre'].str.split(',', expand=True)
 #df_test.rename(columns = {0: 'last_name', 1:'first_name'}, inplace=True)
@@ -38,9 +40,10 @@ print(df)
 #first_name_ls = df_test.pop('first_name')
 #df_worksheet.insert(3,'first_name', first_name_ls)
 
-credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
-postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-postgresql_client.write_table(
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
+postgre_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+postgre_client.write_table(
     df, 
     "TAL_STAFF_SOLAR_FT", 
     "temp", 
