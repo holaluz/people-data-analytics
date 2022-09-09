@@ -20,7 +20,7 @@ gspread_client = gspread.authorize(sheet_credentials)
 sh = gspread_client.open('staff solar_22')
 ws = sh.worksheet("Current STAFF")
 list_cols = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
-list_cols = ws.get_all_records() 
+list_cols = ws.get_values() 
 df = pd.DataFrame()
 for col in list_cols:
     value = ws.col_values(col)
