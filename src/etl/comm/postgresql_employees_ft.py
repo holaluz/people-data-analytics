@@ -71,7 +71,7 @@ postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initial
 df2.to_csv('C:/Users/Administrator/Desktop/output.csv')
 import psycopg2
 credentials_postgre = credentials['people_write']
-m_dbCon = psycopg2.connect(user=credentials_postgre['user'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
 ,database=credentials_postgre['database'])
 curr = m_dbCon.cursor()
 curr.execute('truncate table PPL_EMPLOYEES_FT')
