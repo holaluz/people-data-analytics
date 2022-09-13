@@ -50,8 +50,8 @@ m_dbCon.commit()
 postgresql_client.write_table(
     df, 
     "OPS_MASTER_FT", 
-    "temo", 
-    if_exists = 'append' # see the different values that if_exists can take in the method docsting
+    "temp", 
+    if_exists = 'append' 
 )
 
 #with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
