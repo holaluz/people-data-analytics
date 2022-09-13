@@ -37,11 +37,30 @@ print(df)
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
-postgre_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-postgre_client.write_table(
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+df.to_csv('C:/Users/Administrator/Desktop/output.csv')
+import psycopg2
+credentials_postgre = credentials['people_write']
+m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+,database=credentials_postgre['database'])
+curr = m_dbCon.cursor()
+curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
+curr.close()
+m_dbCon.commit()
+postgresql_client.write_table(
     df, 
     "OPS_MASTER_FT", 
-    "temp", 
-    if_exists = 'replace' # see the different values that if_exists can take in the method docsting
+    "temo", 
+    if_exists = 'append' # see the different values that if_exists can take in the method docsting
 )
+
+#with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    #credentials = yaml.load(file, Loader=yaml.FullLoader)
+#postgre_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+#postgre_client.write_table(
+    #df, 
+    #"OPS_MASTER_FT", 
+    #"temp", 
+    #if_exists = 'replace' # see the different values that if_exists can take in the method docsting
+#)
 
