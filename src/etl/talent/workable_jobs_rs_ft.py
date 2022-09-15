@@ -6,6 +6,7 @@ from holaluz_datatools.credentials import load_credentials
 
 SCHEMA = "people"
 TABLE_NAME = "TAL_JOBS_FT"
+
 creds_fp = None if os.environ['USERNAME']=='Administrator' else os.path.join(os.environ['USERPROFILE'],'creds','creds_people.yml')
 credentials = load_credentials(credentials_fp = creds_fp)
 conn = redshift_connector.connect(**credentials['redshift'])
@@ -19,8 +20,8 @@ df = pd.DataFrame(result, columns = ['id','job_created_at','title', 'department'
 'state','city','experience','salary_from','salary_to',
 'first_published_at','last_published_at'])
 
-mysql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-mysql_client.write_table(
+postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client.write_table(
     df, 
     "TAL_JOBS_FT", 
     "people", 
