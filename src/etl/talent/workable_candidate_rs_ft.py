@@ -21,8 +21,8 @@ df = pd.DataFrame(result, columns= ['id','candidate_created_at','job_title','job
 , 'first_contacted_at', 'first_interviewed_at','first_offer_at', 'first_hired_at','disqualified',
 'disqualified_at', 'recruiter_id','firstname','lastname', 'email'])
 
-mysql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
-mysql_client.write_table(
+postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client.write_table(
     df, 
     "TAL_CANDIDATES_FT", 
     "people", 
