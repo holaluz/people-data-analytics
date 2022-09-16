@@ -32,11 +32,11 @@ credentials_postgre = credentials['people_write']
 m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
 ,database=credentials_postgre['database'])
 curr = m_dbCon.cursor()
-curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
+curr.execute('truncate table "people"."TAL_CANDIDATES_FT"')
 curr.close()
 m_dbCon.commit()
 postgresql_client.write_table(
     df, 
     "TAL_CANDIDATES_FT", 
     "people", 
-    if_exists = 'append' # see the different values that if_exists can take in the method docsting
+    if_exists = 'append') # see the different values that if_exists can take in the method docsting
