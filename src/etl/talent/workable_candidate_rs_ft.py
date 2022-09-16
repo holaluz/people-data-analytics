@@ -1,6 +1,7 @@
 import redshift_connector
 import pandas as pd
 import os
+import yaml
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
 
@@ -21,10 +22,21 @@ df = pd.DataFrame(result, columns= ['id','candidate_created_at','job_title','job
 , 'first_contacted_at', 'first_interviewed_at','first_offer_at', 'first_hired_at','disqualified',
 'disqualified_at', 'recruiter_id','firstname','lastname', 'email'])
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+df.to_csv('C:/Users/Administrator/Desktop/output.csv')
+import psycopg2
+credentials_postgre = credentials['people_write']
+m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+,database=credentials_postgre['database'])
+curr = m_dbCon.cursor()
+curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
+curr.close()
+m_dbCon.commit()
 postgresql_client.write_table(
     df, 
     "TAL_CANDIDATES_FT", 
     "people", 
-    if_exists = 'replace' # see the different values that if_exists can take in the method docsting
-)
+    if_exists = 'append' # see the different values that if_exists can take in the method docsting
