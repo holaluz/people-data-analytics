@@ -14,10 +14,10 @@ conn = redshift_connector.connect(**credentials['redshift'])
 
 with conn:
     with conn.cursor() as cursor:
-        cursor.execute("select id,job_created_at,title, code,state,city,experience,salary_from,salary_to,first_published_at,last_published_at from jobs")
+        cursor.execute("select id,job_created_at,title, department,code,state,city,experience,salary_from,salary_to,first_published_at,last_published_at from jobs")
         result = (cursor.fetchall())
 
-df = pd.DataFrame(result, columns = ['id','job_created_at','title','code',
+df = pd.DataFrame(result, columns = ['id','job_created_at','title', 'department','code',
 'state','city','experience','salary_from','salary_to',
 'first_published_at','last_published_at'])
 
@@ -30,7 +30,7 @@ credentials_postgre = credentials['people_write']
 m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
 ,database=credentials_postgre['database'])
 curr = m_dbCon.cursor()
-curr.execute('truncate table "people"."PPL_JOBS_FT"')
+curr.execute('truncate table "people"."TAL_JOBS_FT"')
 curr.close()
 m_dbCon.commit()
 postgresql_client.write_table(
