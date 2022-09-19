@@ -3,6 +3,7 @@ import requests
 import os 
 import sys
 import json
+import yaml
 import pandas as pd
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
@@ -31,11 +32,32 @@ df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract',
 'fr_mutual_id', 'fr_professional_category_id', 'fr_work_type_id',
 'de_contract_type_id'], inplace=True)
 
-credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
+#credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+df.to_csv('C:/Users/Administrator/Desktop/output.csv')
+import psycopg2
+credentials_postgre = credentials['people_write']
+m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+,database=credentials_postgre['database'])
+curr = m_dbCon.cursor()
+curr.execute('truncate table "people"."OPS_PAYROLL_FT"')
+curr.close()
+m_dbCon.commit()
+postgresql_client.write_table(
+    df, 
+    "OPS_PAYROLL_FT", 
+    "people", 
+    if_exists = 'append' # see the different values that if_exists can take in the method docsting
+)
+
+"""credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df, 
     "OPS_PAYROLL_FT", 
     "people", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
-)
+)"""
+
