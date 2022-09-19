@@ -14,10 +14,10 @@ conn = redshift_connector.connect(**credentials['redshift'])
 
 with conn:
     with conn.cursor() as cursor:
-        cursor.execute("select id, candidate_created_at, job_title, job_department, job_first_published_at, application_method, current_stage_id, first_screened_at, first_contacted_at, first_interviewed_at, first_offer_at, first_hired_at, disqualified, disqualified_at, recruiter_id, firstname, lastname, email from candidates")
+        cursor.execute("select id, candidate_created_at, job_title, job_first_published_at, application_method, current_stage_id, first_screened_at, first_contacted_at, first_interviewed_at, first_offer_at, first_hired_at, disqualified, disqualified_at, recruiter_id, firstname, lastname, email from candidates")
         result = (cursor.fetchall())
 
-df = pd.DataFrame(result, columns= ['id','candidate_created_at','job_title','job_department', 
+df = pd.DataFrame(result, columns= ['id','candidate_created_at','job_title', 
 'job_first_published_at','application_method' ,'current_stage_id', 'first_screened_at'
 , 'first_contacted_at', 'first_interviewed_at','first_offer_at', 'first_hired_at','disqualified',
 'disqualified_at', 'recruiter_id','firstname','lastname', 'email'])
