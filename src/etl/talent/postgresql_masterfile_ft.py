@@ -44,7 +44,7 @@ credentials_postgre = credentials['people_write']
 m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
 ,database=credentials_postgre['database'])
 curr = m_dbCon.cursor()
-curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
+curr.execute('truncate table "temp"."OPS_MASTER_FT"')
 curr.close()
 m_dbCon.commit()
 postgresql_client.write_table(
