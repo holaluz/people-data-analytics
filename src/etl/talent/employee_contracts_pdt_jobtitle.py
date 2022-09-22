@@ -13,6 +13,8 @@ from holaluz_datatools.credentials import load_google_drive_service_account_cred
 
 LOCAL_CREDS_PATH = os.path.join(os.environ['USERPROFILE'], 'creds')
 DRIVE_CREDS_FILENAME = 'drive_to_python.json'
+CREDS_FILENAME = 'creds_people.yml'
+credentials= load_credentials(credentials_fp=os.path.join(LOCAL_CREDS_PATH, CREDS_FILENAME))
 
 sheet_credentials = load_google_drive_service_account_credentials(
     credentials_fp=os.path.join(LOCAL_CREDS_PATH, DRIVE_CREDS_FILENAME)
@@ -22,7 +24,7 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 #2. Query the postgres tables with needed rows
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_contracts = """select distinct a.id, a.first_name, a.last_name, a.email, a.team_name, b.job_title, a."MANAGER",null as profile, a."Sub Team"
 from (select a.id,a.first_name, a.last_name,a.email, a.team_name, b."Job title", b."MANAGER",b."Sub Team"

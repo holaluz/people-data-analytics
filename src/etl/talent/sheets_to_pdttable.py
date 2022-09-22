@@ -13,12 +13,13 @@ LOCAL_CREDS_PATH = os.path.join(os.environ['USERPROFILE'], 'creds')
 DRIVE_CREDS_FILENAME = 'drive_to_python.json'
 
 sheet_credentials = load_google_drive_service_account_credentials(
-    credentials_fp=os.path.join(LOCAL_CREDS_PATH, DRIVE_CREDS_FILENAME)
-)
+    credentials_fp=os.path.join(LOCAL_CREDS_PATH, DRIVE_CREDS_FILENAME))
+CREDS_FILENAME = 'creds_people.yml'
+credentials= load_credentials(credentials_fp=os.path.join(LOCAL_CREDS_PATH, CREDS_FILENAME))
 
 gspread_client = gspread.authorize(sheet_credentials)
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 
 #4. New query 2 get distinct team_names / Store query_teams into df_teams
@@ -64,15 +65,15 @@ df_total = df_total.iloc[1:,:]
 
 #Save it into pdt table
 
-"""postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 postgresql_client.write_table(
     df_total, 
     "OPS_PDT_FT", 
     "people", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
-)"""
+)
 
-#credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
+"""#credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
@@ -90,7 +91,7 @@ postgresql_client.write_table(
     "OPS_PDT_FT", 
     "people", 
     if_exists = 'append' # see the different values that if_exists can take in the method docsting
-)
+)"""
 
 
 
