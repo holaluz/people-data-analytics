@@ -1,6 +1,7 @@
 import os 
 import gspread
 import pandas as pd
+import yaml
 from genericpath import exists
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
@@ -63,12 +64,34 @@ df_total = df_total.iloc[1:,:]
 
 #Save it into pdt table
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+"""postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 postgresql_client.write_table(
     df_total, 
     "OPS_PDT_FT", 
     "people", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
+)"""
+
+#credentials = load_credentials(credentials_fp = 'C:/Users/Administrator/creds/creds_people.yml')
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+df_total.to_csv('C:/Users/Administrator/Desktop/output.csv')
+import psycopg2
+credentials_postgre = credentials['people_write']
+m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
+,database=credentials_postgre['database'])
+curr = m_dbCon.cursor()
+curr.execute('truncate table "people"."OPS_PDT_FT"')
+curr.close()
+m_dbCon.commit()
+postgresql_client.write_table(
+    df_total, 
+    "OPS_PDT_FT", 
+    "people", 
+    if_exists = 'append' # see the different values that if_exists can take in the method docsting
 )
+
+
 
 
