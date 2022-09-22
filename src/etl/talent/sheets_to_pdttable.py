@@ -65,7 +65,7 @@ df_total = df_total.iloc[1:,:]
 
 #Save it into pdt table
 
-postgresql_client = PostgreSQLClient(**credentials['people_write',] lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgresql_client.write_table(
     df_total, 
     "OPS_PDT_FT", 
