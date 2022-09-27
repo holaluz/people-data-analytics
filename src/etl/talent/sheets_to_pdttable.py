@@ -2,6 +2,7 @@ import os
 import gspread
 import pandas as pd
 import yaml
+import time
 from genericpath import exists
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_credentials
@@ -50,15 +51,23 @@ for n in range(len(files_dict)):
 #Forloop that fills with their team_names       
 
 df_total = pd.DataFrame()
-for team in team_names:
+counter=0
+while counter < len(team_names):
+    team=team_names[counter]
     team_gs = team[13::]
     if team_gs in teams_ls: 
         print('t')
         spreadsheet = gspread_client.open(f'{team}')
         ws = spreadsheet.worksheet('Hoja 1') 
-        rows = ws.get_values() 
-        df_worksheet = pd.DataFrame.from_dict(rows)
-        df_total = pd.concat([df_total, df_worksheet],axis=0)
+        try:
+            rows = ws.get_values() 
+        except gspread.exceptions.APIError as e:
+            print(e)
+            time.sleep(10)
+        else:
+            df_worksheet = pd.DataFrame.from_dict(rows)
+            df_total = pd.concat([df_total, df_worksheet],axis=0)
+            counter+=1
   
 df_total.columns= df_total.iloc[0,:] #remove numerical headers
 df_total = df_total.iloc[1:,:]
