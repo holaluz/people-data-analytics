@@ -134,12 +134,4 @@ df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 #ws.format('A:G', {'textFormat': {'bold': False}})
 #ws.format('A1:Z1', {'textFormat': {'bold': True}})
 
-#Save it into staff_solar table
 
-postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-postgresql_client.write_table(
-    df_total, 
-    "TAL_STAFF_SOLAR_FT", 
-    "temp", 
-    if_exists = 'replace' # see the different values that if_exists can take in the method docsting
-)
