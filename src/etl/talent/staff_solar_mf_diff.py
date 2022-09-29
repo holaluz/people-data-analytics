@@ -31,9 +31,10 @@ rows = ws.get_values()
 df_worksheet = pd.DataFrame.from_dict(rows)
 df_selection = df_worksheet.iloc[:,0:8]
 df_selection.columns = ['id', 'apellidos,nombre','job title', 'sub team', 'team', 'split', 'sociedad', 'fecha de baja']
-df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
+df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
+
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
 #1.Query activos with new Ids on (df_master)
@@ -69,7 +70,7 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','differences_jobtitle','differences_subteam','differences_team','differences_split','rownumber']]
+cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
