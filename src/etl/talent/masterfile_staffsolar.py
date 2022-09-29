@@ -114,13 +114,19 @@ result_df2= cols_diff.loc[df_merge['differences_date']==True]
 
 #1.Forloop iteration according to rownumber in the selected changed columns
 
+count=0
 for index, row in result_df.iterrows():
     ws.update('J'+str(1+row['rownumber']), [[row['status']]])
-    sleep(1)
+    sleep(2)
+    print(count)
+    count=count+1
 
+count=0
 for index, row in result_df2.iterrows():
     ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(1)            
+    sleep(2)
+    print(count)
+    count=count+1          
 
 #for index, row in result_df.iterrows():
     #ws.update(result_df, [['azucar'], ['salitre']]) 
