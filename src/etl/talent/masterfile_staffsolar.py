@@ -29,7 +29,7 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 #4. Query 2 get every new row from df_master and append it
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split",a."Sociedad",
 a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , a."End date",
@@ -49,7 +49,7 @@ print(df_master_append)
 
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master_update = """select a."Apellidos, Nombre", a."Id", a."Sociedad",a."End date",a."Status", f.latest_start_date as start_date
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad" 
