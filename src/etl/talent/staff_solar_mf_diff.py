@@ -34,7 +34,7 @@ df_selection.columns = ['id', 'apellidos,nombre','job title', 'sub team', 'team'
 df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
-df_selection = df_selection.dropna(subset=['id'], inplace=False)
+#df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
 #1.Query activos with new Ids on (df_master)
 
