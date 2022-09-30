@@ -1,6 +1,7 @@
 from genericpath import exists
 import os 
 import gspread
+from mysqlx import Column
 import pandas as pd
 import numpy as np
 from holaluz_datatools.sql import PostgreSQLClient
@@ -80,7 +81,8 @@ for team in team_names:
     team_gs = team[13::]
     if team_gs in teams_ls: 
         df_contracts_team = df_contracts.query(f"team_name == '{team_gs}'")
-        print(df_contracts_team)
+        df_contracts_team.drop(columns=['id', 'nombre', 'apellido', 'email', 'job_title', 'manager', 
+        'team', 'subteam'],inplace=True)
         spreadsheet = gspread_client.open(f'{team}')
         ws = spreadsheet.worksheet('Hoja 1') 
         rows = ws.get_all_records() 
