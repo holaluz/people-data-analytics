@@ -26,15 +26,19 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_contracts = """select * from (select a.id, a.first_name, a.last_name, a.email, a.team_name, b.job_title
-from (select * from people.people."PPL_EMPLOYEES_FT") a 
+query_contracts = """select * from (select distinct a.id, a.first_name, a.last_name, a.email, b.job_title, 
+a."MANAGER", a.team_name, a."Sub Team"
+from (select a.id,a.first_name, a.last_name,a.email, a.team_name,b."Sub Team", b."Job title", b."MANAGER"
+from people.people."PPL_EMPLOYEES_FT" a left join "temp"."OPS_MASTER_FT" b 
+on a.factorial_id = b."Id Req > DNI/NIE" 
+where a.team_name is not null and b."Status" like '%Activo%') a 
 left join (select c.actual_date, c.employee_id, c.job_title,
 RANK () OVER (
 		PARTITION BY c.employee_id
 		ORDER BY c.actual_date desc
 	) rn
 from (select b.effective_on as actual_date, b.employee_id, b.job_title from people.people."OPS_PAYROLL_FT" b
-order by actual_date desc)c ) b on a.id = b.employee_id)z
+order by actual_date desc)c ) b on a.id = b.employee_id where rn =1 )z 
 left join (select * from people."OPS_PDT_FT")b on cast(z.id as char) = cast(b.id as char) where b.id is null"""
 
 #3. Store query into a dataframe
