@@ -23,7 +23,10 @@ response = requests.request("GET", url, headers=headers)
 
 df = pd.DataFrame(response.json())
 #df['fte']= df['working_hours']/4000
-#print(df['fte'])
+df['salary_amount']= df['salary_amount']/1000
+
+#print(df['salary_amount'])
+
 df.drop(columns=['has_payroll','salary_frequency','es_has_teleworking_contract', 'es_cotization_group',
 'es_contract_observations','es_job_description','es_working_day_type_id',
 'es_education_level_id', 'es_professional_category_id',
