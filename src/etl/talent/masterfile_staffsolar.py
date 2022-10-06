@@ -37,7 +37,7 @@ null as comme, null as squad,
 row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
+on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
 and cast(b."Id" as char(10)) is null"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
@@ -132,7 +132,6 @@ for index, row in result_df2.iterrows():
     #ws.update(result_df, [['azucar'], ['salitre']]) 
     #k=row
 #result_df=result_df[0:2]
-
 #Append new rows
 
 df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
