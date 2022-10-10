@@ -16,7 +16,6 @@ from holaluz_datatools.credentials import load_google_drive_service_account_cred
 
 #1.Request access to the google sheet with json credentials
 
-
 LOCAL_CREDS_PATH = os.path.join(os.environ['USERPROFILE'], 'creds')
 DRIVE_CREDS_FILENAME = 'drive_to_python.json'
 CREDS_FILENAME = 'creds_people.yml'
@@ -85,6 +84,10 @@ df_staff_solar.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
 df_staff_solar = df_staff_solar.dropna(subset=['id'], inplace=False)
 print(df_staff_solar)
 
+#Append new rows
+
+df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
+
 #Update end_date & status values
 
 #1.Merge both DF(sheets) to find differences
@@ -131,9 +134,6 @@ for index, row in result_df2.iterrows():
     #ws.update(result_df, [['azucar'], ['salitre']]) 
     #k=row
 #result_df=result_df[0:2]
-#Append new rows
-
-df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 
 #ws.format('A:G', {'textFormat': {'bold': False}})
 #ws.format('A1:Z1', {'textFormat': {'bold': True}})
