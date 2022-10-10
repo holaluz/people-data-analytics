@@ -60,6 +60,10 @@ df_staff_solar.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
 df_staff_solar = df_staff_solar.dropna(subset=['id'], inplace=False)
 print(df_staff_solar)
 
+#Append new rows
+
+df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
+
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
@@ -82,10 +86,6 @@ for chunk in postgresql_client.make_query(query_master_update, chunksize=160000)
 postgresql_client.close_connection()
 
 #Fills staff solar_22 with new information from masterfile table 
-
-#Append new rows
-
-df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 
 #Update end_date & status values
 
