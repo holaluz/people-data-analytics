@@ -1,11 +1,13 @@
 from msilib import schema
 import requests
+import gspread
 import yaml
 import os 
 import sys
 import pandas as pd
 import numpy as np
 from holaluz_datatools.sql import PostgreSQLClient
+from holaluz_datatools.credentials import load_google_drive_service_account_credentials
 from holaluz_datatools.credentials import load_credentials
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
@@ -58,6 +60,25 @@ dict_sociedad_master = {'holaluz_clidom':'Holaluz Clidom', 'clidom_solar':'Clido
 df_total=df_total.replace({'sociedad_id': dict_sociedad_master})
 df_total.rename(columns = {'sociedad_id':'sociedad_name'}, inplace = True)
 
+#Fill split column with split values
+
+df_total['split'] = None
+
+#Join split from split table
+
+postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+df_split = []
+query_split = """select a.id, a.factorial_id, a.full_name, a.first_name, a.last_name, a.nationality, a.gender, a.email, a.start_date,
+ a.end_date, a.team_name,
+ a.sociedad_name, b.split from people.people."PPL_EMPLOYEES_FT" a
+ join people.people."OPS_SPLIT_FT" b on a.team_name = b.team"""
+
+for chunk in postgresql_client.make_query(query_split, chunksize=160000):
+    df_split.append(chunk)
+df_employees = pd.concat(df_split, ignore_index=True)
+postgresql_client.close_connection()
+
+
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
@@ -72,7 +93,7 @@ curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
 curr.close()
 m_dbCon.commit()
 postgresql_client.write_table(
-    df_total, 
+    df_employees, 
     "PPL_EMPLOYEES_FT", 
     "people", 
     if_exists = 'append' # see the different values that if_exists can take in the method docsting
