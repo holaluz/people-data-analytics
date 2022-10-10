@@ -16,7 +16,6 @@ from holaluz_datatools.credentials import load_google_drive_service_account_cred
 
 #1.Request access to the google sheet with json credentials
 
-
 LOCAL_CREDS_PATH = os.path.join(os.environ['USERPROFILE'], 'creds')
 DRIVE_CREDS_FILENAME = 'drive_to_python.json'
 CREDS_FILENAME = 'creds_people.yml'
@@ -37,15 +36,15 @@ null as comme, null as squad,
 row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
+on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) 
+and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
 and cast(b."Id" as char(10)) is null"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
-df_master_append = pd.concat(df, ignore_index=True)
+if df != [] : 
+    df_master_append = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
-
-print(df_master_append)
 
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 
@@ -64,10 +63,9 @@ on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f.
 
 for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
     df.append(chunk)
-df_diff = pd.concat(df, ignore_index=True)
+#if df != [] : 
+    df_diff = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
-
-print(df_diff)
 
 #Fills staff solar_22 with new information from masterfile table 
 
@@ -85,6 +83,10 @@ df_staff_solar.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
 
 df_staff_solar = df_staff_solar.dropna(subset=['id'], inplace=False)
 print(df_staff_solar)
+
+#Append new rows
+
+df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 
 #Update end_date & status values
 
@@ -132,9 +134,6 @@ for index, row in result_df2.iterrows():
     #ws.update(result_df, [['azucar'], ['salitre']]) 
     #k=row
 #result_df=result_df[0:2]
-#Append new rows
-
-df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 
 #ws.format('A:G', {'textFormat': {'bold': False}})
 #ws.format('A1:Z1', {'textFormat': {'bold': True}})
