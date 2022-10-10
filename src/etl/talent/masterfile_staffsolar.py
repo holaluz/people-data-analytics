@@ -37,15 +37,15 @@ null as comme, null as squad,
 row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
+on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) 
+and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
 and cast(b."Id" as char(10)) is null"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
-df_master_append = pd.concat(df, ignore_index=True)
+if df != [] : 
+    df_master_append = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
-
-print(df_master_append)
 
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 
@@ -64,10 +64,9 @@ on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f.
 
 for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
     df.append(chunk)
-df_diff = pd.concat(df, ignore_index=True)
+#if df != [] : 
+    df_diff = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
-
-print(df_diff)
 
 #Fills staff solar_22 with new information from masterfile table 
 
