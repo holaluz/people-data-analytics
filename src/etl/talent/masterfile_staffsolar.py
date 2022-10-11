@@ -30,15 +30,34 @@ null as comme, null as squad,
 row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
 on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar'
 and cast(b."Id" as char(10)) is null"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
-df_master_append = pd.concat(df, ignore_index=True)
+if df != [] :   
+    df_master_append = pd.concat(df, ignore_index=True)
+else:
+    df_master_append = pd.DataFrame()
 postgresql_client.close_connection()
-print(df_master_append)
+
+#Fills staff solar_22 with new information from masterfile table 
+#1.Reads destination spreadsheet
+spreadsheet = gspread_client.open('staff solar_22')
+ws = spreadsheet.worksheet('Current STAFF') 
+rows = ws.get_values() 
+df_staff_solar = pd.DataFrame.from_dict(rows)
+df_staff_solar['rownumber']=df_staff_solar.index 
+df_staff_solar.columns= df_staff_solar.iloc[0,:] #remove numerical headers
+df_staff_solar = df_staff_solar.iloc[1:,:]
+df_staff_solar.rename(columns={0:'rownumber'}, inplace=True)
+df_staff_solar.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
+df_staff_solar = df_staff_solar.dropna(subset=['id'], inplace=False)
+
+#Fills staff solar_22 with new information from masterfile table 
+#Append new rows
+
+df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
@@ -59,23 +78,11 @@ df_diff = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
 print(df_diff)
 
-#Fills staff solar_22 with new information from masterfile table 
-#1.Reads destination spreadsheet
-spreadsheet = gspread_client.open('staff solar_22')
-ws = spreadsheet.worksheet('Current STAFF') 
-rows = ws.get_values() 
-df_staff_solar = pd.DataFrame.from_dict(rows)
-df_staff_solar['rownumber']=df_staff_solar.index 
-df_staff_solar.columns= df_staff_solar.iloc[0,:] #remove numerical headers
-df_staff_solar = df_staff_solar.iloc[1:,:]
-df_staff_solar.rename(columns={0:'rownumber'}, inplace=True)
-df_staff_solar.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
-df_staff_solar = df_staff_solar.dropna(subset=['id'], inplace=False)
-print(df_staff_solar)
 
 #Update end_date & status values
+
 #1.Merge both DF(sheets) to find differences
-#df_diff = df_diff.drop(df_diff.columns[[5]],axis = 1)
+
 df_merge = pd.merge(df_diff,df_staff_solar, how='inner', on = ['id','sociedad'])
 df_merge['end date']=df_merge['end date'].astype(str)
 df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['fecha de baja']), True, False) 
@@ -84,8 +91,7 @@ df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status'
 cols_diff = df_merge[['status','Status','end date','fecha de baja','differences_status','differences_date','Apellidos, Nombre','rownumber']]
 result_df= cols_diff.loc[df_merge['differences_status']==True]
 result_df2= cols_diff.loc[df_merge['differences_date']==True]
-#df_merge[df_merge['id']=="2"]
-#df_merge[df_merge['id']=="2"]['end date']
+
 #Update those columns on destination gsheets
 #1.Forloop iteration according to rownumber in the selected changed columns
 count=0
@@ -100,13 +106,4 @@ for index, row in result_df2.iterrows():
     sleep(2)
     print(count)
     count=count+1          
-#for index, row in result_df.iterrows():
-    #ws.update(result_df, [['azucar'], ['salitre']]) 
-    #k=row
-#result_df=result_df[0:2]
 
-#Append new rows
-
-df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
-#ws.format('A:G', {'textFormat': {'bold': False}})
-#ws.format('A1:Z1', {'textFormat': {'bold': True}})
