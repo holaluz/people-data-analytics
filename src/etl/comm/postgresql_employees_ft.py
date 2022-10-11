@@ -7,17 +7,13 @@ import sys
 import pandas as pd
 import numpy as np
 from holaluz_datatools.sql import PostgreSQLClient
-
-#from holaluz_datatools.credentials import load_credentials
-
-
 from holaluz_datatools.credentials import load_google_drive_service_account_credentials
-
 from holaluz_datatools.credentials import load_credentials
-
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
 from refresh_token_factorial import get_token
+
+credentials=load_credentials(credentials_fp='C:/Users/Administrator/creds/creds_people.yml')
 
 token = get_token()
 url = "https://api.factorialhr.com/api/v2/core/employees"
@@ -72,9 +68,9 @@ df_total['split'] = None
 
 #Join split from split table
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df_split = []
-query_split = """select a.id, a.factorial_id, a.full_name, a.first_name, a.last_name, a.nationality, a.gender, a.email, a.start_date,
+query_split = """select a.id, a.factorial_id, a.birthday_on, a.full_name, a.first_name, a.last_name, a.nationality, a.gender, a.email, a.start_date,
  a.end_date, a.team_name,
  a.sociedad_name, b.split from people.people."PPL_EMPLOYEES_FT" a
  join people.people."OPS_SPLIT_FT" b on a.team_name = b.team"""
@@ -83,7 +79,6 @@ for chunk in postgresql_client.make_query(query_split, chunksize=160000):
     df_split.append(chunk)
 df_employees = pd.concat(df_split, ignore_index=True)
 postgresql_client.close_connection()
-
 
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
