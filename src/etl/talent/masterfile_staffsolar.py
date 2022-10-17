@@ -95,7 +95,7 @@ df_merge['differences_team'] = np.where((df_merge['team']!=df_merge['TEAM']), Tr
 df_merge['differences_subteam'] = np.where((df_merge['sub team']!=df_merge['SUBTEAM']), True, False) 
 df_merge['differences_jobtitle'] = np.where((df_merge['job title']!=df_merge['Job title']), True, False) 
 df_merge['differences_manager'] = np.where((df_merge['manager']!=df_merge['Manager']), True, False) 
-df_merge['differences_salary'] = np.where((df_merge['fix salary']!=df_merge['Salary']), True, False) 
+df_merge['differences_salary'] = np.where((df_merge['fix salary']!=df_merge['Fix Salary']), True, False) 
 df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']), True, False) 
 
 
@@ -107,7 +107,7 @@ cols_diff = df_merge[[
 'differences_subteam','sub team','SUBTEAM',
 'differences_jobtitle','job title','Job title', 
 'differences_manager','manager','Manager',
-'differences_salary','fix salary','Salary',
+'differences_salary','fix salary','Fix Salary',
 'differences_bonus','bonus','Bonus','rownumber']]
 
 result_df= cols_diff.loc[df_merge['differences_status']==True]
