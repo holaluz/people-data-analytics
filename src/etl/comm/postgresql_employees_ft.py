@@ -13,8 +13,6 @@ sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','.
 #sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
 from refresh_token_factorial import get_token
 
-credentials=load_credentials(credentials_fp='C:/Users/Administrator/creds/creds_people.yml')
-
 token = get_token()
 url = "https://api.factorialhr.com/api/v2/core/employees"
 
@@ -51,7 +49,7 @@ df_total = pd.merge(df_sociedad, df_teams, how='left', left_on='id', right_on='e
 
 df_teams['employee_ids'] = df_teams['employee_ids'].astype('int64')
 df_total. rename(columns = {'id_x':'id','name': 'team_name'}, inplace = True)
-df_total.drop(columns=['country','company_id', 'manager_id',
+df_total.drop(columns=['country','company_id',
 'team_ids', 'id_y','employee_ids','lead_ids'], inplace=True)
 
 #Replace sociedad id by sociedad name
@@ -64,27 +62,28 @@ df_total.rename(columns = {'sociedad_id':'sociedad_name'}, inplace = True)
 
 #Fill split column with split values
 
-df_total['split'] = None
 
 #Join split from split table
 
-postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 df_split = []
-query_split = """select a.id, a.factorial_id, a.birthday_on, a.full_name, a.first_name, a.last_name, a.nationality, a.gender, a.email, a.start_date,
- a.end_date, a.team_name,
- a.sociedad_name, b.split from people.people."PPL_EMPLOYEES_FT" a
- join people.people."OPS_SPLIT_FT" b on a.team_name = b.team"""
+query_split = """select b.id, b.split
+from people.people."OPS_SPLIT_FT" a 
+left join people.people."PPL_EMPLOYEES_FT" b 
+on a.team = b.team_name"""
 
 for chunk in postgresql_client.make_query(query_split, chunksize=160000):
     df_split.append(chunk)
 df_employees = pd.concat(df_split, ignore_index=True)
 postgresql_client.close_connection()
 
+df_merge= pd.merge(df_total, df_employees, how= 'left', on= 'id')
+
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-df_total.to_csv('C:/Users/Administrator/Desktop/output.csv')
+#df_total.to_csv('C:/Users/Administrator/Desktop/output.csv')
 import psycopg2
 credentials_postgre = credentials['people_write']
 m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
@@ -94,7 +93,7 @@ curr.execute('truncate table "people"."PPL_EMPLOYEES_FT"')
 curr.close()
 m_dbCon.commit()
 postgresql_client.write_table(
-    df_employees, 
+    df_merge, 
     "PPL_EMPLOYEES_FT", 
     "people", 
     if_exists = 'append' # see the different values that if_exists can take in the method docsting
