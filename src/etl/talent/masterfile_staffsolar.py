@@ -24,7 +24,7 @@ gspread_client = gspread.authorize(sheet_credentials)
 #4. Query 2 get every new row from df_master and append it
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split",a."Sociedad",
+query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Team", a."Sub Team", a."Split",a."Sociedad",
 a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , a."End date",
 null as tipobaja, null as chapter,
 row_number() over (ORDER by(select null))as rownum
