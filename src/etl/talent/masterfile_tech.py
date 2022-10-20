@@ -95,8 +95,7 @@ df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']),
 
 
 #1.Select only those we will need and the difference column
-cols_diff = df_merge[[
-'status','Status','end date','End date','differences_status','differences_date',
+cols_diff = df_merge[['status','Status','end date','End date','differences_status','differences_date',
 'differences_salary','fix salary','Fix Salary',
 'differences_bonus','bonus','Bonus','rownumber']]
 
