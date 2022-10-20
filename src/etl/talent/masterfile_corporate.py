@@ -29,8 +29,8 @@ a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a.
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
 a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
-left join "temp"."TAL_TECH_FT" b 
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%'
+left join "temp"."TAL_CORPORATE_FT" b 
+on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%' 
 and b."Id" is null and a."Status" like '%Activo%'
 order by a."Apellidos, Nombre" """""
 
@@ -42,20 +42,20 @@ else:
     df_master_append = pd.DataFrame()
 postgresql_client.close_connection()
 
-#Fills Tech_Master File_2022 with new information from masterfile table 
+#Fills Corporate_Master File_2022 with new information from masterfile table 
 #1.Reads destination spreadsheet
 spreadsheet = gspread_client.open('Tech_Master File_2022')
 ws = spreadsheet.worksheet('Budget 2022') 
 rows = ws.get_values() 
-df_tech = pd.DataFrame.from_dict(rows)
-df_tech['rownumber']=df_tech.index 
-df_tech.columns= df_tech.iloc[0,:] #remove numerical headers
-df_tech = df_tech.iloc[1:,:]
-df_tech.rename(columns={0:'rownumber'}, inplace=True)
-df_tech.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
-df_tech = df_tech.dropna(subset=['id'], inplace=False)
+df_corp = pd.DataFrame.from_dict(rows)
+df_corp['rownumber']=df_corp.index 
+df_corp.columns= df_corp.iloc[0,:] #remove numerical headers
+df_corp = df_corp.iloc[1:,:]
+df_corp.rename(columns={0:'rownumber'}, inplace=True)
+df_corp.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
+df_corp = df_corp.dropna(subset=['id'], inplace=False)
 
-#Fills Tech_Master File_2022 with new information from masterfile table 
+#Fills Corporate_Master File_2022 with new information from masterfile table 
 #Append new rows
 
 df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
@@ -68,7 +68,7 @@ to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End 
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
-left join temp."TAL_TECH_FT" b 
+left join temp."TAL_CORP_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
 where a."Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%'
 group by a."Id", a."Sociedad")f
@@ -86,7 +86,7 @@ print(df_diff)
 
 #1.Merge both DF(sheets) to find differences
 
-df_merge = pd.merge(df_diff,df_tech, how='inner', on = ['id','sociedad'])
+df_merge = pd.merge(df_diff,df_corp, how='inner', on = ['id','sociedad'])
 df_merge['end date']=df_merge['end date'].astype(str)
 df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['End date']), True, False) 
 df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status']), True, False)
@@ -110,25 +110,25 @@ result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
 #1.Forloop iteration according to rownumber in the selected changed columns
 count=0
 for index, row in result_df.iterrows():
-    ws.update('H'+str(1+row['rownumber']), [[row['status']]])
+    ws.update('I'+str(1+row['rownumber']), [[row['status']]])
     sleep(2)
     print(count)
     count=count+1
 count=0
 for index, row in result_df1.iterrows():
-    ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
+    ws.update('T'+str(1+row['rownumber']), [[row['end date']]])
     sleep(2)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df2.iterrows():
-    ws.update('U'+str(1+row['rownumber']), [[row['fix salary']]])
+    ws.update('W'+str(1+row['rownumber']), [[row['fix salary']]])
     sleep(2)
     print(count)
     count=count+1
 count=0
 for index, row in result_df3.iterrows():
-    ws.update('V'+str(1+row['rownumber']), [[row['bonus']]])
+    ws.update('X'+str(1+row['rownumber']), [[row['bonus']]])
     sleep(2)
     print(count)
     count=count+1
