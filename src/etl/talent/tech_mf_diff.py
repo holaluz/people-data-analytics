@@ -49,7 +49,7 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Split", a."Sub Team",
+query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Split", a."Team", a."Sub Team",
 a."Sociedad", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
@@ -71,13 +71,13 @@ df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)"""
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['id', 'sociedad'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
-(df_merge['sub team']!=df_merge['SUBTEAM']) | 
-(df_merge['team']!=df_merge['TEAM']) | 
-(df_merge['split']!=df_merge['SPLIT']), True, False)
+(df_merge['sub team']!=df_merge['Sub Team']) | 
+(df_merge['team']!=df_merge['Team']) | 
+(df_merge['split']!=df_merge['Split']), True, False)
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','rownumber']]
+cols_diff = df_merge[['Job title','job title','sub team','Sub Team','team','Team', 'split','Split','rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
