@@ -65,14 +65,14 @@ df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['id', 'sociedad'])
 
-df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']), True, False)
-
- | 
-"""(df_merge['split']!=df_merge['SPLIT']),"""
+df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
+(df_merge['sub team']!=df_merge['SUBTEAM']) | 
+(df_merge['team']!=df_merge['TEAM']) | 
+(df_merge['split']!=df_merge['SPLIT']), True, False)
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','rownumber']]
+cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
