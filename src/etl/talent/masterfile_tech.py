@@ -27,7 +27,7 @@ df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
-a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL (Salary + Bonus)", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_TECH_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%'
@@ -109,25 +109,25 @@ result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
 #1.Forloop iteration according to rownumber in the selected changed columns
 count=0
 for index, row in result_df.iterrows():
-    ws.update('H'+str(1+row['rownumber']), [[row['status']]])
+    ws.update('I'+str(1+row['rownumber']), [[row['status']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df1.iterrows():
-    ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
+    ws.update('T'+str(1+row['rownumber']), [[row['end date']]])
     sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df2.iterrows():
-    ws.update('U'+str(1+row['rownumber']), [[row['fix salary']]])
+    ws.update('W'+str(1+row['rownumber']), [[row['fix salary']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df3.iterrows():
-    ws.update('V'+str(1+row['rownumber']), [[row['bonus']]])
+    ws.update('X'+str(1+row['rownumber']), [[row['bonus']]])
     sleep(3)
     print(count)
     count=count+1
