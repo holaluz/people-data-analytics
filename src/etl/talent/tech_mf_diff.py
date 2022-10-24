@@ -34,8 +34,13 @@ df_tech = df_tech.iloc[1:,:]
 df_tech.rename(columns={0:'rownumber'}, inplace=True)
 df_tech.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
 df_tech = df_tech.dropna(subset=['id'], inplace=False)
-df_selection = df_tech.iloc[:,0:14]
-df_selection.columns = ['Gender','Ubicación','id','apellidos,nombre','job title','supply solar tech','status,''tipo de contrato','split','new position or backfill','profile','seniority','sociedad','team','subteam']
+df_selection = df_tech.iloc[:,0:26]
+df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job title',
+       'Supply/Solar/Tech', 'Split', 'sociedad', 'Status', 'Tipo de contrato',
+       'New position or backfill', 'Profile', 'Seniority', 'Team', 'Sub Team',
+       'CECO Num', 'CECO FINANZAS', 'MANAGER', 'Start date', 'End date',
+       'FTE según jornada', 'Jornada (%)', 'Fix Salary', 'Bonus',
+       'Total (Salary + Bonus)', 'rownumber']
 
 
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
@@ -58,9 +63,9 @@ print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
-df_master.dropna(subset=['id'], inplace=True)
+"""df_master.dropna(subset=['id'], inplace=True)
 df_master.rename(columns={'id':'Id'}, inplace=True)
-df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
+df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)"""
 
 
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['id', 'sociedad'])
