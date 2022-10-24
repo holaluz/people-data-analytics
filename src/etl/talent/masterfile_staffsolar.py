@@ -24,14 +24,14 @@ gspread_client = gspread.authorize(sheet_credentials)
 #4. Query 2 get every new row from df_master and append it
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split",a."Sociedad",
-a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , 
-a."End date", null as comme, null as squad,
-row_number() over (ORDER by(select null))as rownum
-from "temp"."OPS_MASTER_FT" a left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Solar'
-and b."Id" is null and a."Status" like '%Activo%'
-order by a."Apellidos, Nombre" """""
+query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Sub Team", 
+a."Team", a."Split",a."Sociedad",
+a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , a."End date",
+null as tipobaja, null as chapter, null as comme, null as squad, row_number() over (ORDER by(select null))as rownum
+from "temp"."OPS_MASTER_FT" a
+left join "temp"."TAL_STAFF_SOLAR_FT" b 
+on cast(a."Id" as char(10)) = cast(b."Id" as char(10)) and a."Sociedad" = b."Sociedad" where "Supply/Solar/Tech" like '%Solar%'
+and b."Apellidos, Nombre" is null"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
@@ -62,14 +62,16 @@ df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_update = """select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
+query_master_update = """
+select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
 to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) end as "End date", max(a."Fix Salary") as "Fix Salary",
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
-left join temp."TAL_STAFF_SOLAR_FT" b 
+left join temp."TAL_CORPORATE_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where "Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%p%'
+where a."Supply/Solar/Tech" like '%Supply%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
+and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'and a."End date" not like '%p%' and a."End date" not like '%TB%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
