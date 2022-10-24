@@ -25,11 +25,10 @@ gspread_client = gspread.authorize(sheet_credentials)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master_append = """select cast(a."Id" as char(10)), a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split",a."Sociedad",
-a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , a."End date",
-null as comme, null as squad,
+a."Start date", a."New position or backfill", a."Status", a."Tipo de contrato", a."MANAGER", a."Ubicación" , null as squad , 
+a."End date", null as comme, null as squad,
 row_number() over (ORDER by(select null))as rownum
-from "temp"."OPS_MASTER_FT" a
-left join "temp"."TAL_STAFF_SOLAR_FT" b 
+from "temp"."OPS_MASTER_FT" a left join "temp"."TAL_STAFF_SOLAR_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Solar'
 and b."Id" is null and a."Status" like '%Activo%'
 order by a."Apellidos, Nombre" """""
@@ -127,55 +126,55 @@ result_df9= cols_diff.loc[df_merge['differences_bonus']==True]
 count=0
 for index, row in result_df.iterrows():
     ws.update('J'+str(1+row['rownumber']), [[row['status']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df2.iterrows():
     ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df3.iterrows():
     ws.update('F'+str(1+row['rownumber']), [[row['split']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df4.iterrows():
     ws.update('E'+str(1+row['rownumber']), [[row['team']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1     
 count=0
 for index, row in result_df5.iterrows():
     ws.update('D'+str(1+row['rownumber']), [[row['sub team']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df6.iterrows():
     ws.update('C'+str(1+row['rownumber']), [[row['job title']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df7.iterrows():
     ws.update('L'+str(1+row['rownumber']), [[row['manager']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df8.iterrows():
     ws.update('R'+str(1+row['rownumber']), [[row['fix salary']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df9.iterrows():
     ws.update('S'+str(1+row['rownumber']), [[row['bonus']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 
