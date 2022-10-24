@@ -9,8 +9,8 @@ import numpy as np
 from holaluz_datatools.sql import PostgreSQLClient
 from holaluz_datatools.credentials import load_google_drive_service_account_credentials
 from holaluz_datatools.credentials import load_credentials
-sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), '..','..','utils')))
-#sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', 'people-data-analytics', 'src', 'utils'))
+print(sys.path)
 from refresh_token_factorial import get_token
 
 token = get_token()
@@ -67,10 +67,9 @@ df_total.rename(columns = {'sociedad_id':'sociedad_name'}, inplace = True)
 
 postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
 df_split = []
-query_split = """select b.id, b.split
-from people.people."OPS_SPLIT_FT" a 
-left join people.people."PPL_EMPLOYEES_FT" b 
-on a.team = b.team_name"""
+query_split = """select a.split, a.team, b.id  from people.people."OPS_SPLIT_FT" a
+join people.people."PPL_EMPLOYEES_FT" b 
+on a.team = b.team_name """
 
 for chunk in postgresql_client.make_query(query_split, chunksize=160000):
     df_split.append(chunk)
@@ -79,6 +78,7 @@ postgresql_client.close_connection()
 
 df_merge= pd.merge(df_total, df_employees, how= 'left', on= 'id')
 
+df_merge.drop(columns=['team'], inplace=True)
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
