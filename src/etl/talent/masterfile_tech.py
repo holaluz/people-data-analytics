@@ -110,25 +110,25 @@ result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
 count=0
 for index, row in result_df.iterrows():
     ws.update('H'+str(1+row['rownumber']), [[row['status']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df1.iterrows():
     ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df2.iterrows():
     ws.update('U'+str(1+row['rownumber']), [[row['fix salary']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df3.iterrows():
     ws.update('V'+str(1+row['rownumber']), [[row['bonus']]])
-    sleep(2)
+    sleep(3)
     print(count)
     count=count+1
 
