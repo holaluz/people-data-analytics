@@ -83,7 +83,7 @@ df_merge.drop(columns=['team'], inplace=True)
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-#df_total.to_csv('C:/Users/Administrator/Desktop/output.csv')
+df_merge.to_csv('C:/Users/Administrator/Desktop/output.csv')
 import psycopg2
 credentials_postgre = credentials['people_write']
 m_dbCon = psycopg2.connect(user=credentials_postgre['username'], password=credentials_postgre['password'], host=credentials_postgre['host'] 
@@ -98,3 +98,5 @@ postgresql_client.write_table(
     "people", 
     if_exists = 'append' # see the different values that if_exists can take in the method docsting
 )
+
+
