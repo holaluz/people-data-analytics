@@ -27,7 +27,7 @@ df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
-a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL (Salary + Bonus)", row_number() over (ORDER by(select null))as rownum
+a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)" , row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_TECH_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%'
@@ -70,7 +70,7 @@ from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
 left join temp."TAL_TECH_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%'
+where "Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%' and a."End date" not like '%TB%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
