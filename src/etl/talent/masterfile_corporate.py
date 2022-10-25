@@ -30,9 +30,10 @@ a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start d
 a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_CORPORATE_FT" b 
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%' 
-and b."Id" is null and a."Status" like '%Activo%'
-order by a."Apellidos, Nombre" """""
+on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%'
+and b."Id" is null and a."Status" like '%Activo%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
+and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'
+order by a."Apellidos, Nombre"  """""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
@@ -44,7 +45,7 @@ postgresql_client.close_connection()
 
 #Fills Corporate_Master File_2022 with new information from masterfile table 
 #1.Reads destination spreadsheet
-spreadsheet = gspread_client.open('Tech_Master File_2022')
+spreadsheet = gspread_client.open('Corporate_Master File_2022')
 ws = spreadsheet.worksheet('Budget 2022') 
 rows = ws.get_values() 
 df_corp = pd.DataFrame.from_dict(rows)
@@ -68,9 +69,10 @@ to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End 
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
-left join temp."TAL_CORP_FT" b 
+left join temp."TAL_CORPORATE_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%'
+where a."Supply/Solar/Tech" like '%Supply%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
+and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'and a."End date" not like '%p%' and a."End date" not like '%TB%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
