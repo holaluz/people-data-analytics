@@ -31,7 +31,7 @@ a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() 
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_CORPORATE_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%'
-and b."Id" is null and a."Status" like '%Activo%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
+and b."Id" is null and a."Status" like '%Activo%' or a."Status" like '%Join%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
 and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'
 order by a."Apellidos, Nombre"  """""
 
