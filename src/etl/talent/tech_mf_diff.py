@@ -63,11 +63,6 @@ print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
-"""df_master.dropna(subset=['id'], inplace=True)
-df_master.rename(columns={'id':'Id'}, inplace=True)
-df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)"""
-
-
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['id', 'sociedad'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
