@@ -31,7 +31,7 @@ a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)" , row_num
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_TECH_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%'
-and b."Id" is null and a."Status" like '%Activo%'
+and b."Id" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
 order by a."Apellidos, Nombre" """""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
