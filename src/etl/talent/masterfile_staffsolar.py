@@ -68,10 +68,9 @@ to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End 
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
-left join temp."TAL_CORPORATE_FT" b 
+left join temp."TAL_STAFF_SOLAR_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" like '%Supply%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
-and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'and a."End date" not like '%p%' and a."End date" not like '%TB%'
+where "Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%p%' and a."End date" not like '%TB%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
