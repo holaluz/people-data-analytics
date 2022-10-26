@@ -27,13 +27,13 @@ df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
-a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)" , row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_CORPORATE_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%'
-and b."Id" is null and a."Status" like '%Activo%' or a."Status" like '%Join%' and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
-and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Job title" not like '%Talent%'
-order by a."Apellidos, Nombre"  """""
+and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'and a."Split" like '%HQ Supply%'
+and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
+and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Team" not like '%People%'  """""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
