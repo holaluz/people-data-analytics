@@ -13,6 +13,7 @@ sys.path.append(os.path.join(os.environ['USERPROFILE'], 'documents', 'github', '
 print(sys.path)
 from refresh_token_factorial import get_token
 
+
 token = get_token()
 url = "https://api.factorialhr.com/api/v2/core/employees"
 
@@ -80,6 +81,8 @@ df_merge= pd.merge(df_total, df_employees, how= 'left', on= 'id')
 
 df_merge.drop(columns=['team'], inplace=True)
 
+
+
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
@@ -98,5 +101,8 @@ postgresql_client.write_table(
     "people", 
     if_exists = 'append' # see the different values that if_exists can take in the method docsting
 )
+
+
+
 
 
