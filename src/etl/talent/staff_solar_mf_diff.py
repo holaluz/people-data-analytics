@@ -25,12 +25,13 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 #1.Read origin spreadsheet / Select just columns that need to be transferred 
 
-sh = gspread_client.open('staffsolartest')
+sh = gspread_client.open('staff solar_22')
 ws = sh.worksheet("Current STAFF")
 rows = ws.get_values() 
 df_worksheet = pd.DataFrame.from_dict(rows)
-df_selection = df_worksheet.iloc[:,0:8]
-df_selection.columns = ['id', 'apellidos,nombre','job title', 'sub team', 'team', 'split', 'sociedad', 'fecha de baja']
+df_selection = df_worksheet.iloc[:,0:19]
+df_selection.columns = ['id', 'apellidos,nombre','job title', 'team', 'subteam', 'split', 'sociedad', 'fecha inicio', 'backfill', 'status','tipo de contrato'
+,'manager','zona','squad','fecha de baja','tipo baja','chapter', 'fix salary','bonus']
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
 df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
@@ -42,7 +43,7 @@ df_selection['rownumber']=df_selection.index #Create rownumber column for the fo
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split", 
-a."Sociedad", row_number() over (ORDER by(select null))as rownum
+a."Sociedad", a."Status", a."Tipo de contrato", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
 
@@ -65,12 +66,14 @@ df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad']
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
 (df_merge['sub team']!=df_merge['SUBTEAM']) | 
 (df_merge['team']!=df_merge['TEAM']) | 
+(df_merge['status']!=df_merge['Status']) | 
+(df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
 (df_merge['split']!=df_merge['SPLIT']), True, False)
 
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','rownumber']]
+cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','status','Status','tipo de contrato','Tipo de contrato','rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
