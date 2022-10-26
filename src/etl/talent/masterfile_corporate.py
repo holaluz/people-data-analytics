@@ -30,10 +30,16 @@ a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start d
 a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)" , row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_CORPORATE_FT" b 
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Supply%'
-and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'and a."Split" like '%HQ Supply%'
-and a."Job title" not like '%Sales%' and a."Job title" not like '%Ventas%'
-and a."Job title" not like '%People%' and a."Job title" not like '%Founder%'and a."Team" not like '%People%'  """""
+on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" 
+where a."Team" not like '%Sales%' 
+and a."Team" not like '%People%' 
+and a."Job title"  not like '%Talent%'
+and a."Profile"  not like '%Director%' 
+and a."Job title" not like '%Ventas%' 
+and a."Job title" not like '%Founder%'
+and a."Supply/Solar/Tech" like '%Supply%' 
+and a."Split" like '%HQ Supply%'
+and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%' and a."Split" like '%HQ Supply%'  """""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
