@@ -26,7 +26,7 @@ postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initial
 df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
-a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Remote, "a."Start date", a."End date", a."FTE según jornada",
 a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)" , row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_TECH_FT" b 
