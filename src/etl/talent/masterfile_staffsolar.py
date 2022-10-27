@@ -71,7 +71,7 @@ from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
 left join temp."TAL_STAFF_SOLAR_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%p%' and a."End date" not like '%TB%'
+where a."Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%pe%' and a."End date" not like '%20%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
