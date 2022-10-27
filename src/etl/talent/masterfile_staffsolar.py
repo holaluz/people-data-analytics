@@ -32,7 +32,7 @@ from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Solar%'
 and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
-order by a."Apellidos, Nombre"""""
+"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
