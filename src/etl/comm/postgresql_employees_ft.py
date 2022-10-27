@@ -14,6 +14,9 @@ print(sys.path)
 from refresh_token_factorial import get_token
 
 
+with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
+    credentials = yaml.load(file, Loader=yaml.FullLoader)
+
 token = get_token()
 url = "https://api.factorialhr.com/api/v2/core/employees"
 
@@ -66,7 +69,7 @@ df_total.rename(columns = {'sociedad_id':'sociedad_name'}, inplace = True)
 
 #Join split from split table
 
-postgresql_client = PostgreSQLClient(**load_credentials('people_write'), lazy_initialization = True)
+postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df_split = []
 query_split = """select a.split, a.team, b.id  from people.people."OPS_SPLIT_FT" a
 join people.people."PPL_EMPLOYEES_FT" b 
@@ -82,9 +85,6 @@ df_merge= pd.merge(df_total, df_employees, how= 'left', on= 'id')
 df_merge.drop(columns=['team'], inplace=True)
 
 
-
-with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
-    credentials = yaml.load(file, Loader=yaml.FullLoader)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df_merge.to_csv('C:/Users/Administrator/Desktop/output.csv')
 import psycopg2
