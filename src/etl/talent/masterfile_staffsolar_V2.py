@@ -24,16 +24,26 @@ gspread_client = gspread.authorize(sheet_credentials)
 #4. Query 2 get every new row from df_master and append it
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
+query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
-a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
-a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
+a."FTE según jornada",a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas", a."KM" ¡, a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Solar%'
-and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
-and a."Supply/Solar/Tech" like '%Solar%'
-"""""
+on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" 
+where a."Supply/Solar/Tech" not like '%Technology%' and a."Team" like '%Sales%'
+and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'"""
+
+###PREVIOUS QUERY ::: select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
+#a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
+#a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."FTE según jornada",
+#a."Jornada (%)", a."Fix Salary", a."Bonus", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+#from "temp"."OPS_MASTER_FT" a
+#left join "temp"."TAL_STAFF_SOLAR_FT" b 
+#on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Solar%'
+#and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
+#and a."Supply/Solar/Tech" like '%Solar%'
+
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
@@ -65,8 +75,11 @@ df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master_update = """
-select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
-to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) end as "End date", max(a."Fix Salary") as "Fix Salary",
+select a."Apellidos, Nombre", a."Id", a."Sociedad",  min(a."Status") as Status, 
+case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
+to_date('01/01/2040', 'DD/MM/YYYY') 
+then null else max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY'))
+end as "End date", max(a."Fix Salary") as "Fix Salary", a."Profile", a."Seniority",
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
@@ -76,7 +89,7 @@ where a."Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%pe%' and 
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
 on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
-group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
+group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER",a."Profile", a."Seniority"
 """""
 for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
     df.append(chunk)
@@ -100,6 +113,10 @@ df_merge['differences_jobtitle'] = np.where((df_merge['job title']!=df_merge['Jo
 df_merge['differences_manager'] = np.where((df_merge['manager']!=df_merge['MANAGER']), True, False) 
 df_merge['differences_salary'] = np.where((df_merge['fix salary']!=df_merge['Fix Salary']), True, False) 
 df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']), True, False) 
+df_merge['differences_profile'] = np.where((df_merge['profile']!=df_merge['Profile']), True, False) 
+df_merge['differences_seniority'] = np.where((df_merge['seniority']!=df_merge['Seniority']), True, False) 
+
+
 
 
 #1.Select only those we will need and the difference column
@@ -111,7 +128,9 @@ cols_diff = df_merge[[
 'differences_jobtitle','job title','Job title', 
 'differences_manager','manager','MANAGER',
 'differences_salary','fix salary','Fix Salary',
-'differences_bonus','bonus','Bonus','rownumber']]
+'differences_bonus','bonus','Bonus',
+'differences_profile','profile','Profile',
+'differences_seniority','seniority','Seniority','rownumber']]
 
 result_df= cols_diff.loc[df_merge['differences_status']==True]
 result_df2= cols_diff.loc[df_merge['differences_date']==True]
@@ -122,6 +141,9 @@ result_df6= cols_diff.loc[df_merge['differences_jobtitle']==True]
 result_df7= cols_diff.loc[df_merge['differences_manager']==True]
 result_df8= cols_diff.loc[df_merge['differences_salary']==True]
 result_df9= cols_diff.loc[df_merge['differences_bonus']==True]
+result_df10= cols_diff.loc[df_merge['differences_profile']==True]
+result_df11= cols_diff.loc[df_merge['differences_seniority']==True]
+
 
 
 #Update those columns on destination gsheets
@@ -180,4 +202,17 @@ for index, row in result_df9.iterrows():
     sleep(3)
     print(count)
     count=count+1
+count=0
+for index, row in result_df10.iterrows():
+    ws.update('M'+str(1+row['rownumber']), [[row['profile']]])
+    sleep(3)
+    print(count)
+    count=count+1
+count=0
+for index, row in result_df11.iterrows():
+    ws.update('N'+str(1+row['rownumber']), [[row['seniority']]])
+    sleep(3)
+    print(count)
+    count=count+1
+
 
