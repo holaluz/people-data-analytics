@@ -25,14 +25,15 @@ gspread_client = gspread.authorize(sheet_credentials)
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
-a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
-a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
-a."FTE según jornada",a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas", a."KM" ¡, a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022", 
+a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas", a."KM", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" not like '%Technology%' and a."Team" like '%Sales%'
-and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'"""
+where a."Supply/Solar/Tech" like '%Solar%' 
+and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
+"""
 
 ###PREVIOUS QUERY ::: select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 #a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
@@ -56,7 +57,7 @@ postgresql_client.close_connection()
 #Fills staff solar_22 with new information from masterfile table 
 #1.Reads destination spreadsheet
 spreadsheet = gspread_client.open('Solar_Master File_2022')
-ws = spreadsheet.worksheet('Budget Solar 2022') 
+ws = spreadsheet.worksheet('Staff Solar 2022') 
 rows = ws.get_values() 
 df_staff_solar = pd.DataFrame.from_dict(rows)
 df_staff_solar['rownumber']=df_staff_solar.index 
@@ -156,49 +157,49 @@ for index, row in result_df.iterrows():
     count=count+1
 count=0
 for index, row in result_df2.iterrows():
-    ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
+    ws.update('V'+str(1+row['rownumber']), [[row['end date']]])
     sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df3.iterrows():
-    ws.update('F'+str(1+row['rownumber']), [[row['split']]])
+    ws.update('H'+str(1+row['rownumber']), [[row['split']]])
     sleep(3)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df4.iterrows():
-    ws.update('E'+str(1+row['rownumber']), [[row['team']]])
+    ws.update('P'+str(1+row['rownumber']), [[row['team']]])
     sleep(3)
     print(count)
     count=count+1     
 count=0
 for index, row in result_df5.iterrows():
-    ws.update('D'+str(1+row['rownumber']), [[row['sub team']]])
+    ws.update('Q'+str(1+row['rownumber']), [[row['sub team']]])
     sleep(3)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df6.iterrows():
-    ws.update('C'+str(1+row['rownumber']), [[row['job title']]])
+    ws.update('F'+str(1+row['rownumber']), [[row['job title']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df7.iterrows():
-    ws.update('L'+str(1+row['rownumber']), [[row['manager']]])
+    ws.update('T'+str(1+row['rownumber']), [[row['manager']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df8.iterrows():
-    ws.update('R'+str(1+row['rownumber']), [[row['fix salary']]])
+    ws.update('Y'+str(1+row['rownumber']), [[row['fix salary']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df9.iterrows():
-    ws.update('S'+str(1+row['rownumber']), [[row['bonus']]])
+    ws.update('Z'+str(1+row['rownumber']), [[row['bonus']]])
     sleep(3)
     print(count)
     count=count+1
