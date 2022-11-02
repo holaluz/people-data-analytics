@@ -32,8 +32,8 @@ from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_TECH_FT" b
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" 
 and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%' 
-and b."Id" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
-and a."Supply/Solar/Tech" like '%Technology%'  """""
+and b."Id" is null and (a."Status" like '%Activo%' or a."Status" like '%Join%')
+"""""
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
@@ -64,18 +64,18 @@ df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
 #4. Query 2 get latest start_date contract to update end date and status at staff_solar
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_update = """select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
+query_master_update = """select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status,  f.start_date, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
 to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) end as "End date", max(a."Fix Salary") as "Fix Salary",
 max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
-from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
+from (select a."Id", max(a."Start date")as start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
 left join temp."TAL_TECH_FT" b 
 on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
 where a."Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%' and a."End date" not like '%TB%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
-on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
-group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
+on  a."Id"= f."Id" and f.start_date = a."Start date" and a."Sociedad"= f."Sociedad"
+group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER",  f.start_date
 """""
 for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
     df.append(chunk)
@@ -90,6 +90,7 @@ print(df_diff)
 df_merge = pd.merge(df_diff,df_tech, how='inner', on = ['id','sociedad'])
 df_merge['end date']=df_merge['end date'].astype(str)
 df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['End date']), True, False) 
+df_merge['differences_start_date'] = np.where((df_merge['start_date']!=df_merge['Start date']), True, False) 
 df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status']), True, False)
 df_merge['differences_salary'] = np.where((df_merge['fix salary']!=df_merge['Fix Salary']), True, False) 
 df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']), True, False) 
@@ -98,12 +99,15 @@ df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']),
 #1.Select only those we will need and the difference column
 cols_diff = df_merge[['status','Status','end date','End date','differences_status','differences_date',
 'differences_salary','fix salary','Fix Salary',
-'differences_bonus','bonus','Bonus','rownumber']]
+'differences_bonus','bonus','Bonus','rownumber',
+'differences_start_date', 'start_date','Start date'
+]]
 
 result_df= cols_diff.loc[df_merge['differences_status']==True]
 result_df1= cols_diff.loc[df_merge['differences_date']==True]
 result_df2= cols_diff.loc[df_merge['differences_salary']==True]
 result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
+result_df4= cols_diff.loc[df_merge['differences_start_date']==True]
 
 
 #Update those columns on destination gsheets
@@ -116,19 +120,25 @@ for index, row in result_df.iterrows():
     count=count+1
 count=0
 for index, row in result_df1.iterrows():
-    ws.update('T'+str(1+row['rownumber']), [[row['end date']]])
+    ws.update('U'+str(1+row['rownumber']), [[row['end date']]])
     sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df2.iterrows():
-    ws.update('W'+str(1+row['rownumber']), [[row['fix salary']]])
+    ws.update('X'+str(1+row['rownumber']), [[row['fix salary']]])
     sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df3.iterrows():
-    ws.update('X'+str(1+row['rownumber']), [[row['bonus']]])
+    ws.update('T'+str(1+row['rownumber']), [[row['start_date']]])
+    sleep(3)
+    print(count)
+    count=count+1
+count=0
+for index, row in result_df3.iterrows():
+    ws.update('Y'+str(1+row['rownumber']), [[row['bonus']]])
     sleep(3)
     print(count)
     count=count+1
