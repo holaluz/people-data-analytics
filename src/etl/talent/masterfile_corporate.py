@@ -121,26 +121,26 @@ result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
 #1.Forloop iteration according to rownumber in the selected changed columns
 count=0
 for index, row in result_df.iterrows():
-    ws.update('I'+str(1+row['rownumber']), [[row['status']]])
-    sleep(2)
+    ws.update('J'+str(1+row['rownumber']), [[row['status']]])
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df1.iterrows():
-    ws.update('T'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(2)
+    ws.update('V'+str(1+row['rownumber']), [[row['end date']]])
+    sleep(3)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df2.iterrows():
-    ws.update('W'+str(1+row['rownumber']), [[row['fix salary']]])
-    sleep(2)
+    ws.update('Z'+str(1+row['rownumber']), [[row['fix salary']]])
+    sleep(3)
     print(count)
     count=count+1
 count=0
 for index, row in result_df3.iterrows():
-    ws.update('X'+str(1+row['rownumber']), [[row['bonus']]])
-    sleep(2)
+    ws.update('AA'+str(1+row['rownumber']), [[row['bonus']]])
+    sleep(3)
     print(count)
     count=count+1
 
