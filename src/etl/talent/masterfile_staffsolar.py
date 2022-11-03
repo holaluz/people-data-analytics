@@ -88,7 +88,7 @@ print(df_diff)
 
 #1.Merge both DF(sheets) to find differences
 
-df_merge = pd.merge(df_diff,df_staff_solar, how='inner', on = ['id','sociedad'])
+df_merge = pd.merge(df_diff,df_staff_solar, how='inner', on = ['apellidos, nombre','sociedad'])
 df_merge['end date']=df_merge['end date'].astype(str)
 df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['fecha de baja']), True, False) 
 df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status']), True, False)
@@ -128,55 +128,55 @@ result_df9= cols_diff.loc[df_merge['differences_bonus']==True]
 count=0
 for index, row in result_df.iterrows():
     ws.update('J'+str(1+row['rownumber']), [[row['status']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1
 count=0
 for index, row in result_df2.iterrows():
     ws.update('O'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1      
 count=0
 for index, row in result_df3.iterrows():
     ws.update('F'+str(1+row['rownumber']), [[row['split']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df4.iterrows():
     ws.update('E'+str(1+row['rownumber']), [[row['team']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1     
 count=0
 for index, row in result_df5.iterrows():
     ws.update('D'+str(1+row['rownumber']), [[row['sub team']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1          
 count=0
 for index, row in result_df6.iterrows():
     ws.update('C'+str(1+row['rownumber']), [[row['job title']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1
 count=0
 for index, row in result_df7.iterrows():
     ws.update('L'+str(1+row['rownumber']), [[row['manager']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1
 count=0
 for index, row in result_df8.iterrows():
     ws.update('R'+str(1+row['rownumber']), [[row['fix salary']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1
 count=0
 for index, row in result_df9.iterrows():
     ws.update('S'+str(1+row['rownumber']), [[row['bonus']]])
-    sleep(3)
+    sleep(4)
     print(count)
     count=count+1
 
