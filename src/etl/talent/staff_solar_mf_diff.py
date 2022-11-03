@@ -84,7 +84,7 @@ result_df.to_csv('differences.csv', index = False)
 
 send_file_by_slack('differences.csv','Differences staff solar_22',
 credentials['slack_differences_staffsolar'],
-"__file__",channel = 'ppl_differences_staffsolar',     
+"__file__",channel = 'ppl_differences_staff',     
 link_names = 1, verbose = True)
 
 #1.Example for loop
