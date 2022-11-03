@@ -86,11 +86,11 @@ max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."M
 from (select a."Id", max(a."Start date")as latest_start_date, a."Sociedad"
 from temp."OPS_MASTER_FT" a 
 left join temp."TAL_STAFF_SOLAR_FT" b 
-on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
+on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" 
 where a."Supply/Solar/Tech" like '%Solar%' and a."End date" not like '%pe%' and a."End date" not like '%20%'
 group by a."Id", a."Sociedad")f
 inner join (select * from temp."OPS_MASTER_FT")a
-on  a."Id"= f."Id" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
+on  a."Apellidos, Nombre"= f."Apellidos, Nombre" and f.latest_start_date = a."Start date" and a."Sociedad"= f."Sociedad"
 group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER",a."Profile", a."Seniority"
 """""
 for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
@@ -99,12 +99,13 @@ df_diff = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
 print(df_diff)
 
+df_diff= df_diff.rename(columns={'apellidos, nombre':'Apellidos, Nombre'})
 
 #Update values
 
 #1.Merge both DF(sheets) to find differences
 
-df_merge = pd.merge(df_diff,df_staff_solar, how='inner', on = ['id','sociedad'])
+df_merge = pd.merge(df_diff,df_staff_solar, how='inner', on = ['Apellidos, Nombre','sociedad'])
 df_merge['end date']=df_merge['end date'].astype(str)
 df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['End date']), True, False) 
 df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status']), True, False)
