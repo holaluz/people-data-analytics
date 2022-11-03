@@ -27,7 +27,7 @@ df = []
 query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022", 
-a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas", a."KM", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
+a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control", a."KM", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
 from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" 
