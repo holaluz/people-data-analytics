@@ -25,8 +25,8 @@ gspread_client = gspread.authorize(sheet_credentials)
 
 #1.Read origin spreadsheet / Select just columns that need to be transferred 
 
-sh = gspread_client.open('staff solar_22')
-ws = sh.worksheet("Current STAFF")
+sh = gspread_client.open('Solar_Master File_2022')
+ws = sh.worksheet("Staff Solar 2022")
 rows = ws.get_values() 
 df_worksheet = pd.DataFrame.from_dict(rows)
 df_selection = df_worksheet.iloc[:,0:19]
@@ -64,25 +64,39 @@ df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
-(df_merge['sub team']!=df_merge['SUBTEAM']) | 
-(df_merge['team']!=df_merge['TEAM']) | 
+(df_merge['sub team']!=df_merge['Sub Team']) | 
+(df_merge['team']!=df_merge['Team']) | 
 (df_merge['status']!=df_merge['Status']) | 
 (df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
-(df_merge['split']!=df_merge['SPLIT']), True, False)
+(df_merge['split']!=df_merge['Split']), True, False)
+
+df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_solar' })
+df_merge= df_merge.rename(columns={'sub team':'sub_team_master', 'Sub Team':'sub_team_solar' })
+df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_solar' })
+df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_solar' })
+df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_solar' })
+df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'Tipo de contrato':'tipo_contrato_solar' })
 
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','status','Status','tipo de contrato','Tipo de contrato','rownumber']]
+cols_diff = df_merge[['apellidos, nombre',
+'job_title_master','job_title_solar',
+'sub_team_master','sub_team_solar',
+'team_master','team_solar', 
+'split_master','split_solar',
+'status_master','status_solar',
+'tipo_contrato_master', 'tipo_contrato_solar',
+'rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
 
 #buffer=io.BytesIO()
-result_df.to_csv('differences.csv', index = False)
+result_df.to_csv('differences_solar.csv', index = False)
 #buffer.seek(0)
 
-send_file_by_slack('differences.csv','Differences staff solar_22',
+send_file_by_slack('differences_solar.csv','Differences staff solar_22',
 credentials['slack_differences_staffsolar'],
 "__file__",channel = 'ppl_differences_staff',     
 link_names = 1, verbose = True)
