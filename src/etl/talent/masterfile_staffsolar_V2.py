@@ -24,7 +24,7 @@ gspread_client = gspread.authorize(sheet_credentials)
 #4. Query 2 get every new row from df_master and append it
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
+query_master_append = """select distinct a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre", a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022", 
 a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control", a."KM", a."TOTAL FIX + Bonus", row_number() over (ORDER by(select null))as rownum
@@ -32,8 +32,7 @@ from "temp"."OPS_MASTER_FT" a
 left join "temp"."TAL_STAFF_SOLAR_FT" b 
 on a."Apellidos, Nombre" = b."Apellidos, Nombre" and a."Sociedad" = b."Sociedad" 
 where a."Supply/Solar/Tech" like '%Solar%' 
-and b."Apellidos, Nombre" is null and a."Status" like '%Activo%' or a."Status" like '%Join%'
-and a."Supply/Solar/Tech" like '%Solar%' 
+and b."Apellidos, Nombre" is null and (a."Status" like '%Activo%' or a."Status" like '%Join%')
 """
 
 
@@ -195,7 +194,7 @@ for index, row in result_df9.iterrows():
     sleep(3)
     print(count)
     count=count+1
-count=0
+"""count=0
 for index, row in result_df10.iterrows():
     ws.update('M'+str(1+row['rownumber']), [[row['profile']]])
     sleep(3)
@@ -206,6 +205,6 @@ for index, row in result_df11.iterrows():
     ws.update('N'+str(1+row['rownumber']), [[row['seniority']]])
     sleep(3)
     print(count)
-    count=count+1
+    count=count+1"""
 
 
