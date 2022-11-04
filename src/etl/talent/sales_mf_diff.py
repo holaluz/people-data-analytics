@@ -64,11 +64,11 @@ df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
-(df_merge['sub team']!=df_merge['SUBTEAM']) | 
-(df_merge['team']!=df_merge['TEAM']) | 
+(df_merge['sub team']!=df_merge['Sub Team']) | 
+(df_merge['team']!=df_merge['Team']) | 
 (df_merge['status']!=df_merge['Status']) | 
 (df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
-(df_merge['split']!=df_merge['SPLIT']), True, False)
+(df_merge['split']!=df_merge['Split']), True, False)
 
 
 #1.Select only those we will need and the difference column
