@@ -50,7 +50,7 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Split", a."Team", a."Sub Team",
-a."Sociedad", row_number() over (ORDER by(select null))as rownum
+a."Sociedad", a."Status", a."Tipo de contrato", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
 
@@ -63,31 +63,55 @@ print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
-df_merge = pd.merge(df_master,df_selection, how='inner', on = ['id', 'sociedad'])
+#df_master.dropna(subset=['id'], inplace=True)
+df_master.rename(columns={'id':'Id'}, inplace=True)
+df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
+
+df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
 (df_merge['sub team']!=df_merge['Sub Team']) | 
 (df_merge['team']!=df_merge['Team']) | 
+(df_merge['status']!=df_merge['Status']) | 
+(df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
 (df_merge['split']!=df_merge['Split']), True, False)
+
+df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_corp' })
+df_merge= df_merge.rename(columns={'sub team':'sub_team_master', 'Sub Team':'sub_team_corp' })
+df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_corp' })
+df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_corp' })
+df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_corp' })
+df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'Tipo de contrato':'tipo_contrato_corp' })
+
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','Sub Team','team','Team', 'split','Split','rownumber']]
+cols_diff = df_merge[['apellidos, nombre',
+'job_title_master','job_title_corp',
+'sub_team_master','sub_team_corp',
+'team_master','team_corp', 
+'split_master','split_corp',
+'status_master','status_corp',
+'tipo_contrato_master', 'tipo_contrato_corp',
+'rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
 
-result_df.to_csv('differences.csv', index = False)
+#buffer=io.BytesIO()
+result_df.to_csv('differences_corp.csv', index = False)
+#buffer.seek(0)
 
-send_file_by_slack('differences.csv','Differences staff corporate_22',
+send_file_by_slack('differences_corp.csv','Differences staff corp_22',
 credentials['slack_differences_staffsolar'],
 "__file__",channel = 'ppl_differences_staff',     
 link_names = 1, verbose = True)
 
 
+#1.Example for loop
 
+#for index, row in result_df.iterrows():
+    #ws.update(result_df, [[42], [43]]) Update information in a spreadsheet
+    #k=row
 
-
-
-
-
+#result_df=result_df[0:2]
