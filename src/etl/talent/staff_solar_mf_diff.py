@@ -30,8 +30,13 @@ ws = sh.worksheet("Staff Solar 2022")
 rows = ws.get_values() 
 df_worksheet = pd.DataFrame.from_dict(rows)
 df_selection = df_worksheet.iloc[:,0:19]
-df_selection.columns = ['id', 'apellidos,nombre','job title', 'team', 'subteam', 'split', 'sociedad', 'fecha inicio', 'backfill', 'status','tipo de contrato'
-,'manager','zona','squad','fecha de baja','tipo baja','chapter', 'fix salary','bonus']
+df_selection = df_worksheet.iloc[:,0:26]
+df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job title',
+       'Supply/Solar/Tech', 'Split', 'sociedad', 'Status', 'Tipo de contrato',
+       'New position or backfill', 'Profile', 'Seniority', 'Team', 'Sub Team',
+       'CECO Num', 'CECO FINANZAS', 'MANAGER', 'Start date', 'End date',
+       'FTE según jornada', 'Jornada (%)', 'Fix Salary', 'Bonus',
+       'Total (Salary + Bonus)', 'rownumber']
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
 df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
@@ -43,7 +48,7 @@ df_selection['rownumber']=df_selection.index #Create rownumber column for the fo
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split", 
-a."Sociedad", a."Status", a."Tipo de contrato", row_number() over (ORDER by(select null))as rownum
+a."Sociedad", a."Status", a."Tipo de contrato", a."MANAGER", a."Profile", a."Seniority", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
 
@@ -68,6 +73,9 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 (df_merge['team']!=df_merge['Team']) | 
 (df_merge['status']!=df_merge['Status']) | 
 (df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
+(df_merge['manager']!=df_merge['MANAGER']) | 
+(df_merge['profile']!=df_merge['Profile']) | 
+(df_merge['seniority']!=df_merge['Seniority']) | 
 (df_merge['split']!=df_merge['Split']), True, False)
 
 df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_solar' })
@@ -75,19 +83,16 @@ df_merge= df_merge.rename(columns={'sub team':'sub_team_master', 'Sub Team':'sub
 df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_solar' })
 df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_solar' })
 df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_solar' })
+df_merge= df_merge.rename(columns={'manager':'manager_master', 'MANAGER':'manager_solar' })
+df_merge= df_merge.rename(columns={'profile':'profile_master', 'Profile':'profile_solar' })
+df_merge= df_merge.rename(columns={'seniority':'seniority_master', 'Seniority':'seniority_solar' })
 df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'Tipo de contrato':'tipo_contrato_solar' })
 
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['apellidos, nombre',
-'job_title_master','job_title_solar',
-'sub_team_master','sub_team_solar',
-'team_master','team_solar', 
-'split_master','split_solar',
-'status_master','status_solar',
-'tipo_contrato_master', 'tipo_contrato_solar',
-'rownumber']]
+cols_diff = df_merge[['apellidos, nombre','job_title_master','job_title_solar','team_master','team_solar','sub_team_master','sub_team_solar','split_master','split_solar','status_master','status_solar','tipo_contrato_master', 'tipo_contrato_solar','profile_master', 'profile_solar','seniority_master', 'seniority_solar','manager_master', 'manager_solar','rownumber']]
+
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
