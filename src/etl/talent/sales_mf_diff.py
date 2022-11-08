@@ -73,8 +73,10 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','SUBTEAM','team','TEAM', 'split','SPLIT','status','Status','tipo de contrato','Tipo de contrato','rownumber']]
+cols_diff = df_merge[['Job title','job title','sub team','Sub Team','team','Team', 'split','Split','status','Status','tipo de contrato','Tipo de contrato','rownumber']]
 result_df= cols_diff.loc[df_merge['differences']==True]
+
+df_merge
 
 #Send message in slack with diff
 
