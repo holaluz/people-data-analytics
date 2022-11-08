@@ -65,8 +65,8 @@ print(df_master)
 
 
 #df_master.dropna(subset=['id'], inplace=True)
-df_selection.rename(columns={'id':'Id'}, inplace=True)
-df_selection.rename(columns={'sociedad':'Sociedad'}, inplace=True)
+df_master.rename(columns={'id':'Id'}, inplace=True)
+df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
@@ -99,12 +99,11 @@ cols_diff = df_merge[['apellidos, nombre',
 'team_master','team_tech', 
 'split_master','split_tech',
 'status_master','status_tech',
-'seniority':'seniority_master', 'Seniority':'seniority_tech',
-'profile':'profile_master', 'Profile':'profile_tech',
-'manager_master', 'MANAGER':'manager_tech',
 'tipo_contrato_master', 'tipo_contrato_tech',
+'profile_master', 'profile_tech',
+'seniority_master', 'seniority_tech',
+'manager_master','manager_tech',
 'rownumber']]
-
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
