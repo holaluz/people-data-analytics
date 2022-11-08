@@ -99,8 +99,12 @@ cols_diff = df_merge[['apellidos, nombre',
 'team_master','team_tech', 
 'split_master','split_tech',
 'status_master','status_tech',
+'seniority':'seniority_master', 'Seniority':'seniority_tech',
+'profile':'profile_master', 'Profile':'profile_tech',
+'manager_master', 'MANAGER':'manager_tech',
 'tipo_contrato_master', 'tipo_contrato_tech',
 'rownumber']]
+
 result_df= cols_diff.loc[df_merge['differences']==True]
 
 #Send message in slack with diff
