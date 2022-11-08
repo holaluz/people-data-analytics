@@ -50,7 +50,7 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
 query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Split", a."Team", a."Sub Team",
-a."Sociedad", a."Status", a."Tipo de contrato", row_number() over (ORDER by(select null))as rownum
+a."Sociedad", a."Status", a."Tipo de contrato", a."MANAGER", a."Profile", a."Seniority", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
 
@@ -75,6 +75,9 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 (df_merge['team']!=df_merge['Team']) | 
 (df_merge['status']!=df_merge['Status']) | 
 (df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
+(df_merge['manager']!=df_merge['MANAGER']) | 
+(df_merge['profile']!=df_merge['Profile']) | 
+(df_merge['seniority']!=df_merge['Seniority']) | 
 (df_merge['split']!=df_merge['Split']), True, False)
 
 df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_tech' })
@@ -83,6 +86,9 @@ df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_tech' })
 df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_tech' })
 df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_tech' })
 df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'Tipo de contrato':'tipo_contrato_tech' })
+df_merge= df_merge.rename(columns={'manager':'manager_master', 'MANAGER':'manager_tech' })
+df_merge= df_merge.rename(columns={'profile':'profile_master', 'Profile':'profile_tech' })
+df_merge= df_merge.rename(columns={'seniority':'seniority_master', 'Seniority':'seniority_tech' })
 
 
 #1.Select only those we will need and the difference column
