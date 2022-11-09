@@ -65,6 +65,8 @@ print(df_master)
 
 
 #df_master.dropna(subset=['id'], inplace=True)
+df_selection.rename(columns={'id':'Id'}, inplace=True)
+df_selection.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 df_master.rename(columns={'id':'Id'}, inplace=True)
 df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 
