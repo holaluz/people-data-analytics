@@ -23,10 +23,10 @@ ws = sh.worksheet("Staff Solar 2022")
 rows = ws.get_values() 
 rows = ws.get_values() 
 df_ws = pd.DataFrame.from_dict(rows)
-df = df_ws.iloc[:,0:17]
+df = df_ws.iloc[:,0:29]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
-print(df)
+#print(df)
 
 #df.columns = df.iloc[0]
 #df = df[1:]
