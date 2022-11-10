@@ -126,7 +126,7 @@ def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_fi
         sleep(3)
 
 update_fields(ws, update_df1, 'F', 'J', fields_to_updt=['job title', 'supply/solar/tech', 'split', 'sociedad', 'status'], skip_fields=6)
-update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 'q', 'team', 'sub team'], skip_fields=6)
+update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 'Q', 'team', 'sub team'], skip_fields=6)
 update_fields(ws, update_df_manager, 'T', 'T', fields_to_updt=['manager'], skip_fields=6)
 update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
 update_fields(ws, update_df_salaries, 'AB', 'AC', fields_to_updt=['fix salary','bonus'], skip_fields=6)
