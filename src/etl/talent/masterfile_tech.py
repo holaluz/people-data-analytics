@@ -66,7 +66,7 @@ rownum_file,
 "Gender",
 "Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
 "Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
-"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date"
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date",
 "FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
 from master
 left join
