@@ -67,14 +67,15 @@ case when "End date" <> end_date_tl then 1 else 0 end as update_end_date,
 case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end as update_salaries,
 rownum_file,
 "Gender",
-"Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
+"Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split", "Q",
 "Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority",
-"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date"
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date",
 "FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
 from master
 left join
 talent on master."Apellidos, Nombre"=talent.name_tl
 and master.rownum=talent.rownum_tl
+
 
 """
 
@@ -126,7 +127,7 @@ def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_fi
         sleep(3)
 
 update_fields(ws, update_df1, 'F', 'J', fields_to_updt=['job title', 'supply/solar/tech', 'split', 'sociedad', 'status'], skip_fields=6)
-update_fields(ws, update_df2, 'L', 'Q', fields_to_updt=['profile', 'seniority', 'q', 'team', 'sub team'], skip_fields=6)
+update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 'q', 'team', 'sub team'], skip_fields=6)
 update_fields(ws, update_df_manager, 'T', 'T', fields_to_updt=['manager'], skip_fields=6)
-#update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
+update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
 update_fields(ws, update_df_salaries, 'Z', 'AA', fields_to_updt=['fix salary','bonus'], skip_fields=6)
