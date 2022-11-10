@@ -24,122 +24,106 @@ gspread_client = gspread.authorize(sheet_credentials)
 #4. Query 2 get every new row from df_master and append it
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master_append = """select a."Gender", a."Ubicación", a."Id", a."Apellidos, Nombre", a."Job title", 
-a."Supply/Solar/Tech", a."Split", a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile",
-a."Seniority", a."Team", a."Sub Team", a."CECO Num", a."CECO FINANZAS", a."MANAGER", null as "Remote", a."Start date", a."End date", a."FTE según jornada",
-a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)", row_number() over (ORDER by(select null))as rownum
-from "temp"."OPS_MASTER_FT" a
-left join "temp"."TAL_TECH_FT" b
-on a."Apellidos, Nombre" = b."Apellidos, Nombre" 
-and a."Sociedad" = b."Sociedad" where a."Supply/Solar/Tech" like '%Technology%' 
-and b."Id" is null and (a."Status" like '%Activo%' or a."Status" like '%Join%')
-"""""
+query_master_append = """
+with master as (
+select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
+a."Job title", a."Supply/Solar/Tech", a."Split",
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
+a."FTE según jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)",
+row_number() over (partition by a."Apellidos, Nombre" ORDER by rownum_file_master)as rownum
+from (select *,
+row_number() over (ORDER by(select null)) as rownum_file_master from
+"temp"."OPS_MASTER_FT") a
+where a."Supply/Solar/Tech" like '%Technology%' and a."Apellidos, Nombre" is not null and a."Apellidos, Nombre"<> ''),
+talent as (
+select "Apellidos, Nombre" as name_tl,
+"Status" as status_tl,
+"End date" as end_date_tl,
+"Split" as split_tl,
+"Team" as team_tl,
+"Sub Team" as subteam_tl,
+"Job title" as job_title_tl,
+"MANAGER" as manager_tl,
+"Fix Salary" as fix_salary_tl,
+"Bonus" as bonus_tl,
+"Profile" as profile_tl,
+"Seniority" as seniority_tl,
+row_number() over (partition by b."Apellidos, Nombre" ORDER by rownum_file ) as rownum_tl,
+rownum_file
+from (
+select *,
+row_number() over (ORDER by(select null)) as rownum_file from
+temp."TAL_TECH_FT")  b  )
+select
+case when rownum_tl is null then 1 else 0 end as insert_,
+case when job_title_tl <> "Job title" or "Split" <> split_tl or "Status" <> status_tl then 1 else 0 end as update_1,
+case when profile_tl <> "Profile" or seniority_tl <> "Seniority" or team_tl <> "Team" or subteam_tl <> "Sub Team" then 1 else 0 end as update_2,
+case when manager_tl <> "MANAGER" then 1 else 0 end as update_manager,
+case when "End date" <> end_date_tl then 1 else 0 end as update_end_date,
+case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end as update_salaries,
+rownum_file,
+"Gender",
+"Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority",
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date"
+"FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
+from master
+left join
+talent on master."Apellidos, Nombre"=talent.name_tl
+and master.rownum=talent.rownum_tl
+
+"""
+
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
-if df != [] :   
-    df_master_append = pd.concat(df, ignore_index=True)
-else:
-    df_master_append = pd.DataFrame()
+df_main = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
 
-#Fills Tech_Master File_2022 with new information from masterfile table 
-#1.Reads destination spreadsheet
+
+# Splits between updates and append
+
+insert_df = df_main[df_main['insert_'] == 1]
+update_df1 = df_main[df_main['update_1'] == 1]
+update_df2 = df_main[df_main['update_2'] == 1]
+update_df_manager = df_main[df_main['update_manager'] == 1]
+update_df_end_date = df_main[df_main['update_end_date'] == 1]
+update_df_salaries = df_main[df_main['update_salaries'] == 1]
+
+# Init spreadsheet
 spreadsheet = gspread_client.open('Tech_Master File_2022')
 ws = spreadsheet.worksheet('Budget 2022') 
-rows = ws.get_values() 
-df_tech = pd.DataFrame.from_dict(rows)
-df_tech['rownumber']=df_tech.index 
-df_tech.columns= df_tech.iloc[0,:] #remove numerical headers
-df_tech = df_tech.iloc[1:,:]
-df_tech.rename(columns={0:'rownumber'}, inplace=True)
-df_tech.rename(columns={'Id':'id','Sociedad':'sociedad'}, inplace=True)
-df_tech = df_tech.dropna(subset=['id'], inplace=False)
 
-#Fills Tech_Master File_2022 with new information from masterfile table 
-#Append new rows
+# inserts rows in worksheet
+if df != [] :   
+    df_append = insert_df.iloc[:,7:]
+    df_total = ws.append_rows(df_append.values.tolist(), table_range='A1')
 
-df_total = ws.append_rows(df_master_append.values.tolist(), table_range='A1')
+# Update
 
-#4. Query 2 get latest start_date contract to update end date and status at staff_solar
-postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
-df = []
-query_master_update = """select a."Apellidos, Nombre", a."Id", a."Sociedad", min(a."Status") as Status,  f.start_date, case when max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) = 
-to_date('01/01/2040', 'DD/MM/YYYY') then null else max(to_date(case when a."End date" = '' then '01/01/2040' else a."End date" end, 'DD/MM/YYYY')) end as "End date", max(a."Fix Salary") as "Fix Salary",
-max(a."Bonus") as "Bonus", a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER"
-from (select a."Id", max(a."Start date")as start_date, a."Sociedad"
-from temp."OPS_MASTER_FT" a 
-left join temp."TAL_TECH_FT" b 
-on a."Id" = b."Id" and a."Sociedad" = b."Sociedad" 
-where a."Supply/Solar/Tech" like '%Technology%' and a."End date" not like '%p%' and a."End date" not like '%TB%'
-group by a."Id", a."Sociedad")f
-inner join (select * from temp."OPS_MASTER_FT")a
-on  a."Id"= f."Id" and f.start_date = a."Start date" and a."Sociedad"= f."Sociedad"
-group by a."Id", a."Apellidos, Nombre", a."Sociedad",a."Job title",a."Split", a."Team", a."Sub Team", a."MANAGER",  f.start_date
-"""""
-for chunk in postgresql_client.make_query(query_master_update, chunksize=160000):
-    df.append(chunk)
-df_diff = pd.concat(df, ignore_index=True)
-postgresql_client.close_connection()
-print(df_diff)
+def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_file', fields_to_updt = [], skip_fields=0):
+    """
+    Updates the fields of a worksheet given the source and destination cols.
+    - ws: the worksheet to update
+    - df: the dataframe containing the values of the fields to update
+    - ini_sheet_col: the column letter of the range start of the update
+    - end_sheet_col: the column letter of the range end of the update
+    - rowcol_name: the name of the column of the dataframe df which contains the value of the row number of the destination row to update
+    - fields_to_updt: list of fields of df to use to update (order by destination sequence)
+    - skip_fields: to discard the first n columns of the dataframe
+    """
+    assert len(fields_to_updt) > 0 
 
-#Update values
+    update_df = df.iloc[:, skip_fields:]
+    
+    for index, row in update_df.iterrows():
+        row_num = str(1+int(row[rowcol_name]))
+        ws.update(ini_sheet_col + row_num +':'+ end_sheet_col + row_num, [[row[name] for name in fields_to_updt]])
+        sleep(3)
 
-#1.Merge both DF(sheets) to find differences
-
-df_merge = pd.merge(df_diff,df_tech, how='inner', on = ['id','sociedad'])
-df_merge['end date']=df_merge['end date'].astype(str)
-df_merge['differences_date'] = np.where((df_merge['end date']!=df_merge['End date']), True, False) 
-df_merge['differences_start_date'] = np.where((df_merge['start_date']!=df_merge['Start date']), True, False) 
-df_merge['differences_status'] = np.where((df_merge['status']!=df_merge['Status']), True, False)
-df_merge['differences_salary'] = np.where((df_merge['fix salary']!=df_merge['Fix Salary']), True, False) 
-df_merge['differences_bonus'] = np.where((df_merge['bonus']!=df_merge['Bonus']), True, False) 
-
-
-#1.Select only those we will need and the difference column
-cols_diff = df_merge[['status','Status','end date','End date','differences_status','differences_date',
-'differences_salary','fix salary','Fix Salary',
-'differences_bonus','bonus','Bonus','rownumber',
-'differences_start_date', 'start_date','Start date'
-]]
-
-result_df= cols_diff.loc[df_merge['differences_status']==True]
-result_df1= cols_diff.loc[df_merge['differences_date']==True]
-result_df2= cols_diff.loc[df_merge['differences_salary']==True]
-result_df3= cols_diff.loc[df_merge['differences_bonus']==True]
-result_df4= cols_diff.loc[df_merge['differences_start_date']==True]
-
-
-#Update those columns on destination gsheets
-#1.Forloop iteration according to rownumber in the selected changed columns
-count=0
-for index, row in result_df.iterrows():
-    ws.update('I'+str(1+row['rownumber']), [[row['status']]])
-    sleep(3)
-    print(count)
-    count=count+1
-count=0
-for index, row in result_df1.iterrows():
-    ws.update('U'+str(1+row['rownumber']), [[row['end date']]])
-    sleep(3)
-    print(count)
-    count=count+1      
-count=0
-for index, row in result_df2.iterrows():
-    ws.update('X'+str(1+row['rownumber']), [[row['fix salary']]])
-    sleep(3)
-    print(count)
-    count=count+1
-count=0
-for index, row in result_df3.iterrows():
-    ws.update('T'+str(1+row['rownumber']), [[row['start_date']]])
-    sleep(3)
-    print(count)
-    count=count+1
-count=0
-for index, row in result_df3.iterrows():
-    ws.update('Y'+str(1+row['rownumber']), [[row['bonus']]])
-    sleep(3)
-    print(count)
-    count=count+1
-
+update_fields(ws, update_df1, 'F', 'J', fields_to_updt=['job title', 'supply/solar/tech', 'split', 'sociedad', 'status'], skip_fields=6)
+update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 'q', 'team', 'sub team'], skip_fields=6)
+update_fields(ws, update_df_manager, 'T', 'T', fields_to_updt=['manager'], skip_fields=6)
+update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
+update_fields(ws, update_df_salaries, 'AB', 'AC', fields_to_updt=['fix salary','bonus'], skip_fields=6)
