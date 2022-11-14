@@ -29,12 +29,18 @@ sh = gspread_client.open('Solar_Master File_2022')
 ws = sh.worksheet("Staff Sales 2022")
 rows = ws.get_values() 
 df_worksheet = pd.DataFrame.from_dict(rows)
-df_selection = df_worksheet.iloc[:,0:19]
-df_selection.columns = ['id', 'apellidos,nombre','job title', 'team', 'subteam', 'split', 'sociedad', 'fecha inicio', 'backfill', 'status','tipo de contrato'
-,'manager','zona','squad','fecha de baja','tipo baja','chapter', 'fix salary','bonus']
+df_selection = df_worksheet.iloc[:,0:26]
+df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job title',
+       'Supply/Solar/Tech', 'Split', 'sociedad', 'Status', 'Tipo de contrato',
+       'New position or backfill', 'Profile', 'Seniority', 'Team', 'Sub Team',
+       'CECO Num', 'CECO FINANZAS', 'MANAGER', 'Start date', 'End date',
+       'FTE según jornada', 'Jornada (%)', 'Fix Salary', 'Bonus',
+       'Total (Salary + Bonus)', 'rownumber']
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
 df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
+
+df_selection = df_selection.loc[df_selection['Status'] == '00 - Activo']
 
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
@@ -42,8 +48,8 @@ df_selection['rownumber']=df_selection.index #Create rownumber column for the fo
 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split", 
-a."Sociedad", a."Status", a."Tipo de contrato", row_number() over (ORDER by(select null))as rownum
+query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Split", a."Team", a."Sub Team",
+a."Sociedad", a."Status", a."Tipo de contrato", a."MANAGER", a."Profile", a."Seniority", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
 
@@ -56,10 +62,9 @@ print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
-df_master.dropna(subset=['id'], inplace=True)
+#df_master.dropna(subset=['id'], inplace=True)
 df_master.rename(columns={'id':'Id'}, inplace=True)
 df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
-
 
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
@@ -68,15 +73,28 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 (df_merge['team']!=df_merge['Team']) | 
 (df_merge['status']!=df_merge['Status']) | 
 (df_merge['tipo de contrato']!=df_merge['Tipo de contrato']) | 
+(df_merge['manager']!=df_merge['MANAGER']) | 
+(df_merge['profile']!=df_merge['Profile']) | 
+(df_merge['seniority']!=df_merge['Seniority']) | 
 (df_merge['split']!=df_merge['Split']), True, False)
+
+df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_sls' })
+df_merge= df_merge.rename(columns={'sub team':'sub_team_master', 'Sub Team':'sub_team_sls' })
+df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_sls' })
+df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_sls' })
+df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_sls' })
+df_merge= df_merge.rename(columns={'manager':'manager_master', 'MANAGER':'manager_sls' })
+df_merge= df_merge.rename(columns={'profile':'profile_master', 'Profile':'profile_sls' })
+df_merge= df_merge.rename(columns={'seniority':'seniority_master', 'Seniority':'seniority_sls' })
+df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'Tipo de contrato':'tipo_contrato_sls' })
 
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['Job title','job title','sub team','Sub Team','team','Team', 'split','Split','status','Status','tipo de contrato','Tipo de contrato','rownumber']]
+cols_diff = df_merge[['apellidos, nombre','job_title_master','job_title_sls','team_master','team_sls','sub_team_master','sub_team_sls','split_master','split_sls','status_master','status_sls','tipo_contrato_master', 'tipo_contrato_sls','profile_master', 'profile_sls','seniority_master', 'seniority_sls','manager_master', 'manager_sls','rownumber']]
+
 result_df= cols_diff.loc[df_merge['differences']==True]
 
-df_merge
 
 #Send message in slack with diff
 
