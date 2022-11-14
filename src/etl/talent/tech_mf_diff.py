@@ -42,6 +42,8 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
        'FTE según jornada', 'Jornada (%)', 'Fix Salary', 'Bonus',
        'Total (Salary + Bonus)', 'rownumber']
 
+df_selection = df_selection.loc[df_selection['Status'] == '00 - Activo']
+
 
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
@@ -59,7 +61,6 @@ for chunk in postgresql_client.make_query(query_master, chunksize=160000):
 df_master = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
 
-print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
@@ -115,7 +116,7 @@ result_df.to_csv('differences_tech.csv', index = False)
 #buffer.seek(0)
 
 send_file_by_slack('differences_tech.csv','Differences staff tech_22',
-credentials['slack_differences_staff_tech'],
+credentials['slack_differences_staffsolar'],
 "__file__",channel = 'ppl_differences_staff',     
 link_names = 1, verbose = True)
 

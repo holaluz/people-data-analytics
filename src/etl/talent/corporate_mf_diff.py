@@ -42,6 +42,8 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
        'FTE según jornada', 'Jornada (%)', 'Fix Salary', 'Bonus',
        'Total (Salary + Bonus)', 'rownumber']
 
+df_selection = df_selection.loc[df_selection['Status'] == '00 - Activo']
+
 
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
