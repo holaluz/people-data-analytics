@@ -115,7 +115,7 @@ result_df.to_csv('differences_tech.csv', index = False)
 #buffer.seek(0)
 
 send_file_by_slack('differences_tech.csv','Differences staff tech_22',
-credentials['slack_differences_staffsolar'],
+credentials['slack_differences_staff_tech'],
 "__file__",channel = 'ppl_differences_staff',     
 link_names = 1, verbose = True)
 
