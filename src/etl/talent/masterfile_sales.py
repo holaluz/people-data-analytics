@@ -94,7 +94,7 @@ update_df_salaries = df_main[df_main['update_salaries'] == 1]
 
 # Init spreadsheet
 spreadsheet = gspread_client.open('Solar_Master File_2022')
-ws = spreadsheet.worksheet('Budget 2022') 
+ws = spreadsheet.worksheet('Staff Sales 2022') 
 
 # inserts rows in worksheet
 if df != [] :   
