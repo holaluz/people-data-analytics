@@ -26,10 +26,9 @@ gspread_client = gspread.authorize(sheet_credentials)
 #1.Read origin spreadsheet / Select just columns that need to be transferred 
 
 sh = gspread_client.open('Solar_Master File_2022')
-ws = sh.worksheet("Staff Solar 2022")
+ws = sh.worksheet("Budget 2022")
 rows = ws.get_values() 
 df_worksheet = pd.DataFrame.from_dict(rows)
-df_selection = df_worksheet.iloc[:,0:19]
 df_selection = df_worksheet.iloc[:,0:26]
 df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job title',
        'Supply/Solar/Tech', 'Split', 'sociedad', 'Status', 'Tipo de contrato',
@@ -40,6 +39,8 @@ df_selection.columns = ['Gender', 'Ubicación', 'id', 'Apellidos, Nombre', 'Job 
 df_selection.columns= df_selection.iloc[0,:] #remove numerical headers
 df_selection = df_selection.iloc[1:,:]
 df_selection['rownumber']=df_selection.index #Create rownumber column for the forloop 
+
+df_selection = df_selection.loc[df_selection['Status'] == '00 - Activo']
 
 #df_selection = df_selection.dropna(subset=['id'], inplace=False)
 
@@ -57,14 +58,14 @@ for chunk in postgresql_client.make_query(query_master, chunksize=160000):
 df_master = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
 
-print(df_master)
 
 #1.Merge both DF(sheets) to find differences
 
-df_master.dropna(subset=['id'], inplace=True)
+
 df_master.rename(columns={'id':'Id'}, inplace=True)
 df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
-
+df_selection.rename(columns={'id':'Id'}, inplace=True)
+df_selection.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 
 df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
 
