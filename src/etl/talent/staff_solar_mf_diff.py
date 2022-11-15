@@ -48,7 +48,7 @@ df_selection = df_selection.loc[df_selection['Status'] == '00 - Activo']
 
 postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 df = []
-query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Split", 
+query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Supply/Solar/Tech",
 a."Sociedad", a."Status", a."Tipo de contrato", a."MANAGER", a."Profile", a."Seniority", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
 where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
@@ -77,12 +77,12 @@ df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']
 (df_merge['manager']!=df_merge['MANAGER']) | 
 (df_merge['profile']!=df_merge['Profile']) | 
 (df_merge['seniority']!=df_merge['Seniority']) | 
-(df_merge['split']!=df_merge['Split']), True, False)
+(df_merge['supply/solar/tech']!=df_merge['Supply/Solar/Tech']), True, False)
 
 df_merge= df_merge.rename(columns={'job title':'job_title_master', 'Job title':'job_title_solar' })
 df_merge= df_merge.rename(columns={'sub team':'sub_team_master', 'Sub Team':'sub_team_solar' })
 df_merge= df_merge.rename(columns={'team':'team_master', 'Team':'team_solar' })
-df_merge= df_merge.rename(columns={'split':'split_master', 'Split':'split_solar' })
+df_merge= df_merge.rename(columns={'supply/solar/tech':'supply/solar/tech_master', 'Supply/Solar/Tech':'supply/solar/tech_solar' })
 df_merge= df_merge.rename(columns={'status':'status_master', 'Status':'status_solar' })
 df_merge= df_merge.rename(columns={'manager':'manager_master', 'MANAGER':'manager_solar' })
 df_merge= df_merge.rename(columns={'profile':'profile_master', 'Profile':'profile_solar' })
@@ -92,7 +92,7 @@ df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'T
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['apellidos, nombre','job_title_master','job_title_solar','team_master','team_solar','sub_team_master','sub_team_solar','split_master','split_solar','status_master','status_solar','tipo_contrato_master', 'tipo_contrato_solar','profile_master', 'profile_solar','seniority_master', 'seniority_solar','manager_master', 'manager_solar','rownumber']]
+cols_diff = df_merge[['apellidos, nombre','job_title_master','job_title_solar','team_master','team_solar','sub_team_master','sub_team_solar','supply/solar/tech_master', 'supply/solar/tech_solar','status_master','status_solar','tipo_contrato_master', 'tipo_contrato_solar','profile_master', 'profile_solar','seniority_master', 'seniority_solar','manager_master', 'manager_solar','rownumber']]
 
 result_df= cols_diff.loc[df_merge['differences']==True]
 
