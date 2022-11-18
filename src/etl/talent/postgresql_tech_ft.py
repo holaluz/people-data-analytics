@@ -22,7 +22,7 @@ sh = gspread_client.open('Tech_Master File_2022')
 ws = sh.worksheet("Budget 2022")
 rows = ws.get_values() 
 df_ws = pd.DataFrame.from_dict(rows)
-df = df_ws.iloc[:,0:25]
+df = df_ws.iloc[:,0:26]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
 
