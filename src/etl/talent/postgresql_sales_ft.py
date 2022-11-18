@@ -18,8 +18,8 @@ sheet_credentials = load_google_drive_service_account_credentials(
 
 gspread_client = gspread.authorize(sheet_credentials)
 
-sh = gspread_client.open('Tech_Master File_2022')
-ws = sh.worksheet("Budget 2022")
+sh = gspread_client.open('Solar_Master File_2022')
+ws = sh.worksheet("Staff Sales 2022")
 rows = ws.get_values() 
 df_ws = pd.DataFrame.from_dict(rows)
 df = df_ws.iloc[:,0:25]
@@ -31,7 +31,7 @@ with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as f
 postgre_client = PostgreSQLClient(**credentials['people_write'], lazy_initialization = True)
 postgre_client.write_table(
     df, 
-    "TAL_TECH_FT", 
+    "TAL_SALES_FT", 
     "temp", 
     if_exists = 'replace' # see the different values that if_exists can take in the method docsting
 )
