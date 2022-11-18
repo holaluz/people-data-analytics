@@ -23,7 +23,7 @@ ws = sh.worksheet("Budget 2022")
 rows = ws.get_values() 
 rows = ws.get_values() 
 df_ws = pd.DataFrame.from_dict(rows)
-df = df_ws.iloc[:,0:29]
+df = df_ws.iloc[:,0:32]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
 #print(df)
