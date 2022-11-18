@@ -31,7 +31,7 @@ a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022",
 a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control",
-a."KM", a."TOTAL FIX + Bonus",
+a."KM", a."Total (Salary + Bonus)",
  row_number() over (partition by a."Apellidos, Nombre" ORDER by rownum_file_master)as rownum
 from (select *,
 row_number() over (ORDER by(select null)) as rownum_file_master from
@@ -68,14 +68,14 @@ rownum_file,
 "Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
 "Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
 "Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date", "Fecha del cambio", "31/12/2022",
-"FTE según jornada", "FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control", "KM", "TOTAL FIX + Bonus"
+"FTE según jornada", "FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control", "KM", "Total (Salary + Bonus)"
 from master
 left join
 talent on master."Apellidos, Nombre"=talent.name_tl
 and master.rownum=talent.rownum_tl;
 
-
 """
+
 
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
@@ -102,7 +102,7 @@ if df != [] :
     df_append = insert_df.iloc[:,7:]
     df_total = ws.append_rows(df_append.values.tolist(), table_range='A1')
 
-# Update
+# Update fields
 
 def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_file', fields_to_updt = [], skip_fields=0):
     """
@@ -129,3 +129,4 @@ update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 
 update_fields(ws, update_df_manager, 'T', 'T', fields_to_updt=['manager'], skip_fields=6)
 update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
 update_fields(ws, update_df_salaries, 'AB', 'AC', fields_to_updt=['fix salary','bonus'], skip_fields=6)
+
