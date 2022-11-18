@@ -26,11 +26,12 @@ postgresql_client = PostgreSQLClient(**credentials['people_write'], lazy_initial
 df = []
 query_master_append = """
 with master as (
-select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
-a."Job title", a."Supply/Solar/Tech", a."Split",
-a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
-a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
-a."FTE según jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)",
+select "Gender",
+"Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date", "Fecha del cambio", "31/12/2022",
+"FTE según jornada","FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control",
+"KM", "Total (Salary + Bonus)",
 row_number() over (partition by a."Apellidos, Nombre" ORDER by rownum_file_master)as rownum
 from (select *,
 row_number() over (ORDER by(select null)) as rownum_file_master from
@@ -55,7 +56,7 @@ rownum_file
 from (
 select *,
 row_number() over (ORDER by(select null)) as rownum_file from
-temp."TAL_CORPORATE_FT")  b  )
+temp."TAL_SALES_FT")  b  )
 select
 case when rownum_tl is null then 1 else 0 end as insert_,
 case when job_title_tl <> "Job title" or "Split" <> split_tl or "Status" <> status_tl then 1 else 0 end as update_1,
@@ -65,10 +66,11 @@ case when "End date" <> end_date_tl then 1 else 0 end as update_end_date,
 case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end as update_salaries,
 rownum_file,
 "Gender",
-"Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
-"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority",
-"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date"
-"FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
+"Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date", "Fecha del cambio", "31/12/2022",
+"FTE según jornada","FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control",
+"KM", "Total (Salary + Bonus)"
 from master
 left join
 talent on master."Apellidos, Nombre"=talent.name_tl
