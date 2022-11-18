@@ -28,7 +28,7 @@ query_master_append = """
 with master as (
 select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
 a."Job title", a."Supply/Solar/Tech", a."Split",
-a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority",
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
 a."FTE según jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)",
 row_number() over (partition by a."Apellidos, Nombre" ORDER by rownum_file_master)as rownum
@@ -65,7 +65,7 @@ case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end
 rownum_file,
 "Gender",
 "Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
-"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority",
 "Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date",
 "FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
 from master
@@ -80,6 +80,7 @@ for chunk in postgresql_client.make_query(query_master_append, chunksize=160000)
     df.append(chunk)
 df_main = pd.concat(df, ignore_index=True)
 postgresql_client.close_connection()
+
 
 
 # Splits between updates and append
