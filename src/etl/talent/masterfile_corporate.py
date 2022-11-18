@@ -29,7 +29,7 @@ with master as (
 select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
 a."Job title", a."Supply/Solar/Tech", a."Split",
 a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
-a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", 
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", "Fecha del cambio",
 a."FTE según jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Total (Salary + Bonus)",
 row_number() over (partition by a."Apellidos, Nombre" ORDER by rownum_file_master)as rownum
 from (select *,
@@ -67,15 +67,14 @@ case when "End date" <> end_date_tl then 1 else 0 end as update_end_date,
 case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end as update_salaries,
 rownum_file,
 "Gender",
-"Ubicación", "Id", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split", "Q",
-"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority",
-"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date",
+"Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
+"Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date", "Fecha del cambio",
 "FTE según jornada","Jornada (%)", "Fix Salary", "Bonus", "Total (Salary + Bonus)"
 from master
 left join
 talent on master."Apellidos, Nombre"=talent.name_tl
 and master.rownum=talent.rownum_tl
-
 
 """
 
