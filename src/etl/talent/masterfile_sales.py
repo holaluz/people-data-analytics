@@ -121,7 +121,7 @@ def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_fi
     update_df = df.iloc[:, skip_fields:]
     
     for index, row in update_df.iterrows():
-        row_num = str(1+int(row[rowcol_name]))
+        row_num = str(int(row[rowcol_name]))
         ws.update(ini_sheet_col + row_num +':'+ end_sheet_col + row_num, [[row[name] for name in fields_to_updt]])
         sleep(3)
 

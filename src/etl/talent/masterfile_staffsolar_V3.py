@@ -119,9 +119,9 @@ def update_fields(ws, df, ini_sheet_col, end_sheet_col, rowcol_name = 'rownum_fi
     update_df = df.iloc[:, skip_fields:]
     
     for index, row in update_df.iterrows():
-        row_num = str(1+int(row[rowcol_name]))
+        row_num = str(int(row[rowcol_name]))
         ws.update(ini_sheet_col + row_num +':'+ end_sheet_col + row_num, [[row[name] for name in fields_to_updt]])
-        sleep(3)
+        sleep(2)
 
 update_fields(ws, update_df1, 'F', 'J', fields_to_updt=['job title', 'supply/solar/tech', 'split', 'sociedad', 'status'], skip_fields=6)
 update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 'q', 'team', 'sub team'], skip_fields=6)
