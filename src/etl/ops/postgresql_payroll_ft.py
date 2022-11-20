@@ -90,7 +90,7 @@ conditions = [(df_total['sociedad_name'] == 'Holaluz Clidom') & (df_total['tipo_
 choices  = [ "indefinido", 'temporal', 'indefinido','temporal','indefinido','temporal','indefinido','temporal']    
 df_total["tipo_contrato"] = np.select(conditions, choices, default=np.nan)
 
-df_total.drop(columns=['has_payroll','es_has_teleworking_contract',
+"""df_total.drop(columns=['has_payroll','es_has_teleworking_contract',
 'es_cotization_group', 'es_contract_observations', 'es_job_description',
 'es_working_day_type_id', 'es_education_level_id','es_professional_category_id', 'fr_employee_type', 'fr_forfait_jours',
 'fr_jours_par_an', 'fr_coefficient', 'fr_contract_type_id','fr_level_id', 'fr_step_id', 'fr_mutual_id',
@@ -98,7 +98,7 @@ df_total.drop(columns=['has_payroll','es_has_teleworking_contract',
 
 df_total.drop(columns=['salary_frequency'], inplace=True)
 
-print(df_total['tipo_contrato'].unique())
+#print(df_total['tipo_contrato'].unique())"""
 
 #Join with bonus
 
