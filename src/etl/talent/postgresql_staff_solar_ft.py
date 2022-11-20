@@ -26,6 +26,7 @@ df_ws = pd.DataFrame.from_dict(rows)
 df = df_ws.iloc[:,0:32]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
+df['sheet_row'] = df.index +1 
 #print(df)
 
 #df.columns = df.iloc[0]

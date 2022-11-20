@@ -25,6 +25,7 @@ df_ws = pd.DataFrame.from_dict(rows)
 df = df_ws.iloc[:,0:28]
 df.columns= df.iloc[0,:] #remove numerical headers
 df = df.iloc[1:,:]
+df['sheet_row'] = df.index +1 
 
 with open(os.path.join('C:/Users/Administrator/creds', 'creds_people.yml')) as file:
     credentials = yaml.load(file, Loader=yaml.FullLoader)

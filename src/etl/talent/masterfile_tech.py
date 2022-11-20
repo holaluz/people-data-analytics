@@ -53,7 +53,7 @@ row_number() over (partition by b."Apellidos, Nombre" ORDER by rownum_file ) as 
 rownum_file
 from (
 select *,
-row_number() over (ORDER by(select null)) as rownum_file from
+sheet_row as rownum_file from
 temp."TAL_TECH_FT")  b  )
 select
 case when rownum_tl is null then 1 else 0 end as insert_,

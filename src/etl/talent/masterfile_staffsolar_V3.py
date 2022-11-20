@@ -1,6 +1,7 @@
 import os 
 import sys
 import gspread
+from gspread_dataframe import set_with_dataframe
 import yaml
 import pandas as pd
 #import time
@@ -54,8 +55,8 @@ row_number() over (partition by b."Apellidos, Nombre" ORDER by rownum_file ) as 
 rownum_file
 from (
 select *,
-row_number() over (ORDER by(select null)) as rownum_file from
-temp."TAL_STAFF_SOLAR_FT")  b  )
+sheet_row as rownum_file from
+ temp."TAL_STAFF_SOLAR_FT"   )  b  )
 select
 case when rownum_tl is null then 1 else 0 end as insert_,
 case when job_title_tl <> "Job title" or "Split" <> split_tl or "Status" <> status_tl then 1 else 0 end as update_1,
@@ -75,8 +76,6 @@ talent on master."Apellidos, Nombre"=talent.name_tl
 and master.rownum=talent.rownum_tl;
 
 """
-
-
 
 for chunk in postgresql_client.make_query(query_master_append, chunksize=160000):
     df.append(chunk)
@@ -129,4 +128,30 @@ update_fields(ws, update_df2, 'M', 'Q', fields_to_updt=['profile', 'seniority', 
 update_fields(ws, update_df_manager, 'T', 'T', fields_to_updt=['manager'], skip_fields=6)
 update_fields(ws, update_df_end_date, 'V', 'V', fields_to_updt=['end date'], skip_fields=6)
 update_fields(ws, update_df_salaries, 'AB', 'AC', fields_to_updt=['fix salary','bonus'], skip_fields=6)
+
+
+# As is part
+
+query_master = """
+select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
+a."Job title", a."Supply/Solar/Tech", a."Split",
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022",
+a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control",
+a."KM", a."Total (Salary + Bonus)"
+from
+"temp"."OPS_MASTER_FT"  a
+where "Supply/Solar/Tech" like '%Solar%' and "Apellidos, Nombre" is not null and "Apellidos, Nombre"<> ''
+"""
+
+for chunk in postgresql_client.make_query(query_master, chunksize=160000):
+    df.append(chunk)
+df_master = pd.concat(df, ignore_index=True)
+postgresql_client.close_connection()
+df_master = df_master.iloc[:,7:]
+ws = spreadsheet.worksheet('Master_actual')
+ws.clear()
+set_with_dataframe(ws,df_master)
+
+ 
 
