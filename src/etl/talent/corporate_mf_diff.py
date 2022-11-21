@@ -70,8 +70,10 @@ df_selection.rename(columns={'id':'Id'}, inplace=True)
 df_selection.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 df_master.rename(columns={'id':'Id'}, inplace=True)
 df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
+df_master.rename(columns={'apellidos, nombre':'Apellidos, Nombre'}, inplace=True)
+df_selection.rename(columns={'apellidos, nombre':'Apellidos, Nombre'}, inplace=True)
 
-df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
+df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Apellidos, Nombre'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
 (df_merge['sub team']!=df_merge['Sub Team']) | 
@@ -96,7 +98,7 @@ df_merge= df_merge.rename(columns={'tipo de contrato':'tipo_contrato_master', 'T
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['apellidos, nombre','job_title_master','job_title_corp','team_master','team_corp','sub_team_master','sub_team_corp','supply/solar/tech_master', 'supply/solar/tech_corp','status_master','status_corp','tipo_contrato_master', 'tipo_contrato_corp','profile_master', 'profile_corp','seniority_master', 'seniority_corp','manager_master', 'manager_corp','rownumber']]
+cols_diff = df_merge[['Apellidos, Nombre','job_title_master','job_title_corp','team_master','team_corp','sub_team_master','sub_team_corp','supply/solar/tech_master', 'supply/solar/tech_corp','status_master','status_corp','tipo_contrato_master', 'tipo_contrato_corp','profile_master', 'profile_corp','seniority_master', 'seniority_corp','manager_master', 'manager_corp','rownumber']]
 
 result_df= cols_diff.loc[df_merge['differences']==True]
 
