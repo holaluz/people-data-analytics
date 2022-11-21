@@ -54,7 +54,8 @@ df = []
 query_master = """select a."Id", a."Apellidos, Nombre", a."Job title", a."Sub Team", a."Team", a."Supply/Solar/Tech",
 a."Sociedad", a."Status", a."Tipo de contrato", a."MANAGER", a."Profile", a."Seniority", row_number() over (ORDER by(select null))as rownum
 from temp."OPS_MASTER_FT" a
-where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL"""
+where a."Status" like '%Activo%' and a."Id" <> '' and a."Id" is not NULL
+and a."Supply/Solar/Tech" like '%Solar%'"""
 
 for chunk in postgresql_client.make_query(query_master, chunksize=160000):
     df.append(chunk)
@@ -70,8 +71,10 @@ df_selection.rename(columns={'id':'Id'}, inplace=True)
 df_selection.rename(columns={'sociedad':'Sociedad'}, inplace=True)
 df_master.rename(columns={'id':'Id'}, inplace=True)
 df_master.rename(columns={'sociedad':'Sociedad'}, inplace=True)
+df_master.rename(columns={'apellidos, nombre':'Apellidos, Nombre'}, inplace=True)
+df_selection.rename(columns={'apellidos, nombre':'Apellidos, Nombre'}, inplace=True)
 
-df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Id', 'Sociedad'])
+df_merge = pd.merge(df_master,df_selection, how='inner', on = ['Apellidos, Nombre'])
 
 df_merge['differences'] = np.where((df_merge['job title']!=df_merge['Job title']) | 
 (df_merge['sub team']!=df_merge['Sub Team']) | 
@@ -96,7 +99,7 @@ df_merge= df_merge.rename(columns={'seniority':'seniority_master', 'Seniority':'
 
 #1.Select only those we will need and the difference column
 
-cols_diff = df_merge[['apellidos, nombre',
+cols_diff = df_merge[['Apellidos, Nombre',
 'job_title_master','job_title_tech',
 'sub_team_master','sub_team_tech',
 'team_master','team_tech', 
