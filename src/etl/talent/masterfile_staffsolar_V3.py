@@ -28,8 +28,8 @@ df = []
 query_master_append = """
 with master as (
 select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
-a."Job title", a."Supply/Solar/Tech", a."Split",
-a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Job title", a."Supply/Solar/Tech", a."% EM", a."% Solar", a."Split",
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", 
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022",
 a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control",
 a."KM", a."Total (Salary + Bonus)",
@@ -65,15 +65,16 @@ case when manager_tl <> "MANAGER" then 1 else 0 end as update_manager,
 case when "End date" <> end_date_tl then 1 else 0 end as update_end_date,
 case when "Fix Salary" <> fix_salary_tl or "Bonus" <> bonus_tl then 1 else 0 end as update_salaries,
 rownum_file,
-"Gender",
-"Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre", "Job title", "Supply/Solar/Tech", "Split",
-"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", "Q",
+"Gender", "Ubicación", "Id", "Id Req > DNI/NIE", "Apellidos, Nombre",
+"Job title", "Supply/Solar/Tech", "% EM", "% Solar", "Split",
+"Sociedad", "Status", "Tipo de contrato", "New position or backfill", "Profile", "Seniority", 
 "Team","Sub Team", "CECO Num" , "CECO FINANZAS", "MANAGER", "Start date", "End date", "Fecha del cambio", "31/12/2022",
-"FTE según jornada", "FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control", "KM", "Total (Salary + Bonus)"
+"FTE según jornada","FTE según fecha alta + jornada", "Jornada (%)", "Fix Salary", "Bonus", "Dietas/Guardias centro control",
+"KM", "Total (Salary + Bonus)"
 from master
 left join
 talent on master."Apellidos, Nombre"=talent.name_tl
-and master.rownum=talent.rownum_tl;
+and master.rownum=talent.rownum_tl
 
 """
 
@@ -134,11 +135,11 @@ update_fields(ws, update_df_salaries, 'AB', 'AC', fields_to_updt=['fix salary','
 
 query_master = """
 select a."Gender", a."Ubicación", a."Id", a."Id Req > DNI/NIE", a."Apellidos, Nombre",
-a."Job title", a."Supply/Solar/Tech", a."Split",
-a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", a."Q",
+a."Job title", a."Supply/Solar/Tech", a."% EM", a."% Solar", a."Split",
+a."Sociedad", a."Status", a."Tipo de contrato", a."New position or backfill", a."Profile", a."Seniority", 
 a."Team",a."Sub Team", a."CECO Num" , a."CECO FINANZAS", a."MANAGER", a."Start date", a."End date", a."Fecha del cambio", a."31/12/2022",
 a."FTE según jornada",a."FTE según fecha alta + jornada", a."Jornada (%)", a."Fix Salary", a."Bonus", a."Dietas/Guardias centro control",
-a."KM", a."Total (Salary + Bonus)"
+a."KM", a."Total (Salary + Bonus)",
 from
 "temp"."OPS_MASTER_FT"  a
 where "Supply/Solar/Tech" like '%Solar%' and "Apellidos, Nombre" is not null and "Apellidos, Nombre"<> ''
